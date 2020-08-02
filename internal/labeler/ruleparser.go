@@ -6,7 +6,6 @@ import (
 	"label-it/internal/gitapi"
 	"regexp"
 	"sort"
-	"strings"
 )
 
 // Rule rule from YAML config
@@ -14,8 +13,8 @@ type Rule struct {
 	Label       string
 	HeadRules   string
 	BaseRules   string
-	TitleRules  []string
-	BodyRules   []string
+	TitleRules  string
+	BodyRules   string
 	UserRule    string
 	NumberRules []int
 }
@@ -54,14 +53,11 @@ func (r Rule) MatchBaseRules(pr gitapi.PullRequest) bool {
 
 // MatchTitleRules determines if provided pull request contains text in title rules
 func (r Rule) MatchTitleRules(pr gitapi.PullRequest) bool {
-	if len(r.TitleRules) == 0 {
+	if r.TitleRules == "" {
 		return true
 	}
 
-	searchTerms := r.TitleRules
-	searchExp := strings.Join(searchTerms, "|")
-
-	match, err := regexp.MatchString(searchExp, pr.Title)
+	match, err := regexp.MatchString(r.TitleRules, pr.Title)
 	common.CheckErr(err)
 
 	return match
@@ -69,14 +65,11 @@ func (r Rule) MatchTitleRules(pr gitapi.PullRequest) bool {
 
 // MatchBodyRules determines if provided pull request contains text in title rules
 func (r Rule) MatchBodyRules(pr gitapi.PullRequest) bool {
-	if len(r.BodyRules) == 0 {
+	if r.BodyRules == "" {
 		return true
 	}
 
-	searchTerms := r.BodyRules
-	searchExp := strings.Join(searchTerms, "|")
-
-	match, err := regexp.MatchString(searchExp, pr.Body)
+	match, err := regexp.MatchString(r.BodyRules, pr.Body)
 	common.CheckErr(err)
 
 	return match

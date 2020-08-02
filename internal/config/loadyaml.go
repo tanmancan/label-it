@@ -13,12 +13,12 @@ var YamlConfig YamlConfigV1
 
 // YamlRule an individual rule for a label
 type YamlRule struct {
-	Head   string   `yaml:"head,omitempty"`
-	Base   string   `yaml:"base,omitempty"`
-	Title  []string `yaml:"title,omitempty"`
-	Body   []string `yaml:"body,omitempty"`
-	User   string   `yaml:"user,omitempty"`
-	Number []int    `yaml:"number,omitempty"`
+	Head   string `yaml:"head,omitempty"`
+	Base   string `yaml:"base,omitempty"`
+	Title  string `yaml:"title,omitempty"`
+	Body   string `yaml:"body,omitempty"`
+	User   string `yaml:"user,omitempty"`
+	Number []int  `yaml:"number,omitempty"`
 }
 
 // YamlConfigV1 interface used to unmarshal YAML configuration
