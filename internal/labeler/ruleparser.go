@@ -49,6 +49,17 @@ func (r Rule) MatchHeadRules(pr gitapi.PullRequest) bool {
 
 // MatchBaseRules determines if provided pull request base branch matche theBaseRule
 func (r Rule) MatchBaseRules(pr gitapi.PullRequest) bool {
+	wildcardRule := isWildCard(r.BaseRules)
+
+	if wildcardRule == true {
+		match, err := regexp.Match(r.BaseRules, []byte(pr.Base.Ref))
+		common.CheckErr(err)
+		return match
+	}
+
+	if r.BaseRules == pr.Base.Ref {
+		return true
+	}
 	return false
 }
 
