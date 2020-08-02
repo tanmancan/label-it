@@ -22,19 +22,23 @@ type Rule struct {
 // LabelRules set of rules created from YAML config
 type LabelRules []Rule
 
+// Reusable function for pattern match
+func matchString(pattern string, s string) bool {
+	if pattern == "" {
+		return true
+	}
+	match, err := regexp.MatchString(pattern, s)
+	common.CheckErr(err)
+	return match
+}
+
 // MatchHeadRules determines if provided pull request head branch matche the HeadRule
 func (r Rule) MatchHeadRules(pr gitapi.PullRequest) bool {
 	if r.HeadRules == pr.Head.Ref {
 		return true
 	}
 
-	// Fall back to regular expression search if no exact match found for rule and branch name
-	// Should return true if no rule provide
-	// TODO: validate claim above
-	match, err := regexp.MatchString(r.HeadRules, pr.Head.Ref)
-	common.CheckErr(err)
-
-	return match
+	return matchString(r.HeadRules, pr.Head.Ref)
 }
 
 // MatchBaseRules determines if provided pull request base branch matche theBaseRule
@@ -43,36 +47,17 @@ func (r Rule) MatchBaseRules(pr gitapi.PullRequest) bool {
 		return true
 	}
 
-	// Fall back to regular expression search if no exact match found for rule and branch name
-	// Should return true if no rule provide
-	// TODO: validate claim above
-	match, err := regexp.MatchString(r.BaseRules, pr.Base.Ref)
-	common.CheckErr(err)
-	return match
+	return matchString(r.BaseRules, pr.Base.Ref)
 }
 
 // MatchTitleRules determines if provided pull request contains text in title rules
 func (r Rule) MatchTitleRules(pr gitapi.PullRequest) bool {
-	if r.TitleRules == "" {
-		return true
-	}
-
-	match, err := regexp.MatchString(r.TitleRules, pr.Title)
-	common.CheckErr(err)
-
-	return match
+	return matchString(r.TitleRules, pr.Title)
 }
 
 // MatchBodyRules determines if provided pull request contains text in title rules
 func (r Rule) MatchBodyRules(pr gitapi.PullRequest) bool {
-	if r.BodyRules == "" {
-		return true
-	}
-
-	match, err := regexp.MatchString(r.BodyRules, pr.Body)
-	common.CheckErr(err)
-
-	return match
+	return matchString(r.BodyRules, pr.Body)
 }
 
 // MatchUserRules checks if pull request creator username matches user rule
@@ -127,8 +112,8 @@ func prHasLabel(pr gitapi.PullRequest, label string) bool {
 
 	var existingLabels []string
 
-	for _, prlabel := range pr.Labels {
-		existingLabels = append(existingLabels, prlabel.Name)
+	for _, prLabel := range pr.Labels {
+		existingLabels = append(existingLabels, prLabel.Name)
 	}
 
 	sort.Strings(existingLabels)
@@ -169,7 +154,8 @@ func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 		}
 
 		if len(newLabels) != 0 {
-			matchedLabelPr = append(matchedLabelPr, gitapi.PrLabel{pr.Number, newLabels})
+			newPrLabel := gitapi.PrLabel{Issue: pr.Number, Labels: newLabels}
+			matchedLabelPr = append(matchedLabelPr, newPrLabel)
 		}
 	}
 
