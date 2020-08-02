@@ -5,13 +5,20 @@ import (
 	"label-it/internal/common"
 )
 
+// PrLabel interface describing a pull request and
+// a list of labels to add to the pull request
+type PrLabel struct {
+	Issue  int
+	Labels []string
+}
+
 // AddLabels adds given list of labels to a specific pull request
 // https://docs.github.com/en/rest/reference/issues#set-labels-for-an-issue
-func AddLabels(issue int, labels []string) {
-	endpoint := buildEndpoint(githubConfig.Endpoints.AddLabels, issue)
+func AddLabels(prLabel PrLabel) {
+	endpoint := buildEndpoint(githubConfig.Endpoints.AddLabels, prLabel.Issue)
 
 	reqBody, err := json.Marshal(map[string][]string{
-		"labels": labels,
+		"labels": prLabel.Labels,
 	})
 	common.CheckErr(err)
 

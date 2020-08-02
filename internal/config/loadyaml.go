@@ -13,22 +13,24 @@ var YamlConfig YamlConfigV1
 
 // YamlRule an individual rule for a label
 type YamlRule struct {
-	Label string   `yaml:"label"`
-	Head  string   `yaml:"head,omitempty"`
-	Base  string   `yaml:"base,omitempty"`
-	Title []string `yaml:"title,omitempty"`
+	Head   string   `yaml:"head,omitempty"`
+	Base   string   `yaml:"base,omitempty"`
+	Title  []string `yaml:"title,omitempty"`
+	Body   []string `yaml:"body,omitempty"`
+	User   string   `yaml:"user,omitempty"`
+	Number []int    `yaml:"number,omitempty"`
 }
 
-// YamlConfigV1 configuration type for YAML unmarshalling
+// YamlConfigV1 interface used to unmarshal YAML configuration
 type YamlConfigV1 struct {
 	APIVersion int `yaml:"apiVersion"`
 	Access     struct {
 		User  string `yaml:"user"`
 		Token string `yaml:"token"`
 	} `yaml:"access"`
-	Owner string     `yaml:"owner"`
-	Repo  string     `yaml:"repo"`
-	Rules []YamlRule `yaml:"rules"`
+	Owner string              `yaml:"owner"`
+	Repo  string              `yaml:"repo"`
+	Rules map[string]YamlRule `yaml:"rules"`
 }
 
 // Validates YAML with current package version

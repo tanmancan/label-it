@@ -11,5 +11,6 @@ func main() {
 	config.LoadYaml()
 
 	prList := gitapi.ListPulls()
-	labeler.RuleParser(prList)
+	prLabels := labeler.RuleParser(prList)
+	labeler.LabelPr(prLabels)
 }

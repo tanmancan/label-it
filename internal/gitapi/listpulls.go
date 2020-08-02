@@ -10,6 +10,7 @@ type PullRequest struct {
 	Number int    `json:"number"`
 	State  string `json:"state"`
 	Title  string `json:"title"`
+	Body   string `json:"body"`
 	Head   struct {
 		Label string `json:"label"`
 		Ref   string `json:"ref"`
@@ -23,6 +24,9 @@ type PullRequest struct {
 	Labels []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
+	User struct {
+		Login string `json:"login"`
+	} `json:"user"`
 }
 
 // ListPullsResponse interface used to unmarshal JSON response
