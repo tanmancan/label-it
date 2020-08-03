@@ -28,7 +28,7 @@ func SetupArgs() {
 	flag.BoolVar(&ShowHelp, "-help", false, "Display the help text")
 	flag.BoolVar(&showVersion, "version", false, "Show version information")
 	flag.StringVar(&YamlPath, "c", "", "Path to the yaml file")
-	flag.BoolVar(&DryRun, "dry", false, "Outputs labels to be added to pr based on given rules, withtout calling the API")
+	flag.BoolVar(&DryRun, "dry", false, "Outputs list of pull request and matched labels. Does not call the API")
 	flag.Parse()
 
 	if showVersion == true {

@@ -19,7 +19,7 @@ rules:
   # Label name
   Label Name:
     # The "to" branch. Any pull request merging to
-    # this branch will have this label aadded.
+    # this branch will have this label added.
     # May pass the branch name or a regular expression
     base: base-branch-name
     # The "from" branch. Any pull request created
