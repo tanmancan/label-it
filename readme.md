@@ -2,7 +2,7 @@
 
 A command line tool written in Go, for adding labels to Github pull requests using a declarative YAML configuration
 
-# Usage
+## Usage
 
 Configure Rules via YAML. See below for all [configuration options](#options)
 
@@ -25,7 +25,7 @@ Run using rules from the YAML configuration
 label-it -c label-it.yaml
 ```
 
-# Usage Options
+## Usage Options
 
 View available options via `label-it --help`
 ```
@@ -42,16 +42,16 @@ Example: ./label-it -c label-it.yaml
         Show version information
 ```
 
-# Configuration Options
+## Configuration Options
 
-## `apiVersion` (`int`) *required*
+### `apiVersion` (`int`) *required*
 Version of YAML schema. Breaking changes to the schema will be versioned.
 
 ```yaml
 apiVersion: 1
 ```
 
-## `access` (`map`) *required*
+### `access` (`map`) *required*
 Github username and personal access token. This will be used to authenticate with the API. Token will require the `repo` scope in order to view and update existing pull requests. For more information see: https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token
 
 ```yaml
@@ -68,21 +68,21 @@ access:
   token: $GIT_TOKEN
 ```
 
-## `owner` (`string`) *required*
+### `owner` (`string`) *required*
 The repository owner
 
 ```yaml
 owner: tanmancan
 ```
 
-## `repo` (`string`) *required*
+### `repo` (`string`) *required*
 The repository name
 
 ```yaml
 repo: label-it
 ```
 
-## `rules` (`map`) *required*
+### `rules` (`map`) *required*
 Rules describe conditions that a pull request must match. If an open pull request matches all provided rules then this label will be applied to it. Each rule is grouped by the label name as the key.
 
 ```yaml
@@ -96,7 +96,7 @@ rules:
     number: [0, 1, 2, 3, 4]
 ```
 
-## `LabelName` (`string`)
+### `LabelName` (`string`)
 
 Key is the Label name to be added to an open pull request
 
@@ -184,7 +184,7 @@ Apply label if a pull request number matches any of the provided numbers.
 number: [5, 10, 15, 20]
 ```
 
-## Example Configuration
+### Example Configuration
 
 ```yaml
 apiVersion: 1
