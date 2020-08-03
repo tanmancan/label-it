@@ -1,0 +1,83 @@
+apiVersion: 1
+
+# Github username and access token
+# Recommend passing in an env variable by prefixing it with $
+access:
+  user: $GIT_USER
+  token: $GIT_TOKEN
+
+# Repository owner
+owner: tanmancan
+
+# Repository name
+repo: label-it
+
+# Each rule is grouped by the label name
+# If an open pull request matches all provided rules
+# then this label will be applied to it
+rules:
+  # Label name
+  Label Name:
+    # The "to" branch. Any pull request merging to
+    # this branch will have this label aadded.
+    # May pass the branch name or a regular expression
+    base: base-branch-name
+    # The "from" branch. Any pull request created
+    # from this branch will have this label added.
+    # May pass the branch name or a regular expression
+    head: head-branch-name
+    # Check if provided text appears in pull request title
+    # May pass a string or a regular expression
+    title: Text in title
+    # Check if provided text appears in pull request body
+    # May pass a string or a regular expression
+    body: Text in body
+    # Provide a Github username. If pull request was opened
+    # by this user, the label will be added
+    user: tanmancan
+    # Apply labels to specific pull request by their numbers.
+    number: [0, 1, 2, 3, 4]
+
+  # Examples:
+
+  # All rules must match for label to be added
+  AllRulesMatch:
+    head: staging
+    base: dev
+    title: Create
+
+  # A label with no rule will be added to all pull requests
+  LabelToAllPr:
+  # In this example - If a pull request's base branch
+  # is "staging", the the label "From Staging" will be added
+  From Staging:
+    head: staging
+
+  # If the pull request is merging to master branch
+  # then the label "To Master" will be applied
+  To Master:
+    base: master
+
+  # This label will be applied if the head branch
+  # name starts with "pr-"
+  PR-* branch:
+    head: ^(pr-)
+
+  # The label "PR #5" will be added to pull request #5
+  # if it is open
+  "PR #5":
+    number: [5]
+
+  # Regular expression string - if pull request has the words
+  # text, in, or title the label "Regex Title" will be applied
+  Regex Title:
+    title: (text)|(in)|(title)
+
+  # The label will be added if the user "tanmancan" opened the pull request
+  Tanmancan PR:
+    user: tanmancan
+
+  # The label "BodyText" will be applied if the pull request contains
+  # the text "Hello World"
+  BodyText:
+    body: Hello World

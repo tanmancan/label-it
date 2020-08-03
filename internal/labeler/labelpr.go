@@ -8,8 +8,8 @@ import (
 )
 
 func printPrLabel(prLabels []gitapi.PrLabel) {
-	fmt.Println("Dry run - List of pull request #s and labels to be applied")
 	fmt.Println("PR\tLabels")
+	fmt.Println("--\t------")
 	for _, prLabel := range prLabels {
 		fmt.Printf("%[1]d\t%[2]s\n", prLabel.Issue, strings.Join(prLabel.Labels, ", "))
 	}

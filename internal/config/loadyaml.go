@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"label-it/internal/common"
 	"log"
@@ -109,6 +108,4 @@ func LoadYaml() {
 	common.CheckErr(parseerr)
 
 	validateVersion(YamlConfig.APIVersion)
-
-	fmt.Println(YamlConfig)
 }
