@@ -8,15 +8,27 @@ import (
 	"sort"
 )
 
+// RuleTypeString rules can contain a match or no match string
+type RuleTypeString struct {
+	Match   string
+	NoMatch string
+}
+
+// RuleTypeIntSlice rules can contain a match or no match int slice
+type RuleTypeIntSlice struct {
+	Match   []int
+	NoMatch []int
+}
+
 // Rule rule from YAML config
 type Rule struct {
 	Label       string
-	HeadRules   string
-	BaseRules   string
-	TitleRules  string
-	BodyRules   string
-	UserRule    string
-	NumberRules []int
+	HeadRules   RuleTypeString
+	BaseRules   RuleTypeString
+	TitleRules  RuleTypeString
+	BodyRules   RuleTypeString
+	UserRule    RuleTypeString
+	NumberRules RuleTypeIntSlice
 }
 
 // LabelRules set of rules created from YAML config
@@ -34,11 +46,15 @@ func matchString(pattern string, s string) bool {
 
 // MatchHeadRules determines if provided pull request head branch matche the HeadRule
 func (r Rule) MatchHeadRules(pr gitapi.PullRequest) bool {
-	if r.HeadRules == pr.Head.Ref {
+	if r.HeadRules.Match == pr.Head.Ref {
 		return true
 	}
 
-	return matchString(r.HeadRules, pr.Head.Ref)
+	if r.HeadRules.NoMatch == pr.Head.Ref {
+		return false
+	}
+
+	return matchString(r.HeadRules.Match, pr.Head.Ref)
 }
 
 // MatchBaseRules determines if provided pull request base branch matche theBaseRule
@@ -132,9 +148,45 @@ func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 	labelRules := LabelRules{}
 
 	for label, rule := range config.YamlConfig.Rules {
-		numRule := rule.Number
-		sort.Ints(numRule)
-		newRule := Rule{label, rule.Head, rule.Base, rule.Title, rule.Body, rule.User, numRule}
+		matchNumRule := rule.Match.Number
+		sort.Ints(matchNumRule)
+
+		noMatchNumRule := rule.NoMatch.Number
+		sort.Ints(noMatchNumRule)
+
+		ruleHead := RuleTypeString{
+			Match:   rule.Match.Head,
+			NoMatch: rule.NoMatch.Head,
+		}
+		ruleBase := RuleTypeString{
+			Match:   rule.Match.Base,
+			NoMatch: rule.NoMatch.Base,
+		}
+		ruleTitle := RuleTypeString{
+			Match:   rule.Match.Title,
+			NoMatch: rule.NoMatch.Title,
+		}
+		ruleBody := RuleTypeString{
+			Match:   rule.Match.Body,
+			NoMatch: rule.NoMatch.Body,
+		}
+		ruleUser := RuleTypeString{
+			Match:   rule.Match.User,
+			NoMatch: rule.NoMatch.User,
+		}
+		ruleNumber := RuleTypeIntSlice{
+			Match:   matchNumRule,
+			NoMatch: noMatchNumRule,
+		}
+		newRule := Rule{
+			label,
+			ruleHead,
+			ruleBase,
+			ruleTitle,
+			ruleBody,
+			ruleUser,
+			ruleNumber,
+		}
 		labelRules = append(labelRules, newRule)
 	}
 

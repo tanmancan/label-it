@@ -85,11 +85,15 @@ func (a *YamlGithubAccess) UnmarshalYAML(unmarshal func(interface{}) error) erro
 
 // YamlConfigV1 interface used to unmarshal YAML configuration
 type YamlConfigV1 struct {
-	APIVersion int                 `yaml:"apiVersion"`
-	Access     YamlGithubAccess    `yaml:"access"`
-	Owner      string              `yaml:"owner"`
-	Repo       string              `yaml:"repo"`
-	Rules      map[string]YamlRule `yaml:"rules"`
+	APIVersion int              `yaml:"apiVersion"`
+	Access     YamlGithubAccess `yaml:"access"`
+	Owner      string           `yaml:"owner"`
+	Repo       string           `yaml:"repo"`
+	// Rules      map[string]YamlRule `yaml:"rules"`
+	Rules map[string]struct {
+		Match   YamlRule `yaml:"match,omitempty"`
+		NoMatch YamlRule `yaml:"no-match,omitempty"`
+	} `yaml:"rules"`
 }
 
 // Validates YAML with current package version
