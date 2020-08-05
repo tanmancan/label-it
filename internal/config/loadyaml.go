@@ -39,6 +39,7 @@ type RuleGroupInt struct {
 
 // YamlRule rules for an individual label
 type YamlRule struct {
+	Label  string          `yaml:"label"`
 	Head   RuleGroupString `yaml:"head,omitempty"`
 	Base   RuleGroupString `yaml:"base,omitempty"`
 	Title  RuleGroupString `yaml:"title,omitempty"`
@@ -114,7 +115,7 @@ type YamlConfigV1 struct {
 	Owner      string           `yaml:"owner"`
 	Repo       string           `yaml:"repo"`
 	// Rules      map[string]YamlRule `yaml:"rules"`
-	Rules map[string]YamlRule `yaml:"rules"`
+	Rules []YamlRule `yaml:"rules"`
 }
 
 // Validates YAML with current package version

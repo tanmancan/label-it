@@ -162,9 +162,9 @@ func prHasLabel(pr gitapi.PullRequest, label string) bool {
 func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 	labelRules := LabelRules{}
 
-	for label, rule := range config.YamlConfig.Rules {
+	for _, rule := range config.YamlConfig.Rules {
 		newRule := Rule{
-			label,
+			rule.Label,
 			rule.Head,
 			rule.Base,
 			rule.Title,
