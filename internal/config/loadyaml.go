@@ -13,14 +13,38 @@ import (
 // YamlConfig loaded yaml configuration
 var YamlConfig YamlConfigV1
 
-// YamlRule an individual rule for a label
+// RuleGroupString groups of rule types for string values.
+// Exact - the rule value must be an exact match of the compare value.
+// NoExact - a rule value must NOT be an exact match of the compare value.
+// Match - a regex pattern that must match a compare value.
+// NoMatch - a regex pattern that must NOT match a compare value
+type RuleGroupString struct {
+	Exact   string `yaml:"exact,omitempty"`
+	NoExact string `yaml:"no-exact,omitempty"`
+	Match   string `yaml:"match,omitempty"`
+	NoMatch string `yaml:"no-match,omitempty"`
+}
+
+// RuleGroupInt groups of rule types for integer values
+// Exact - the rule value must be an exact match of the compare value.
+// NoExact - a rule value must NOT be an exact match of the compare value.
+// Match - a regex pattern that must match a compare value.
+// NoMatch - a regex pattern that must NOT match a compare value
+type RuleGroupInt struct {
+	Exact   int    `yaml:"exact,omitempty"`
+	NoExact int    `yaml:"no-exact,omitempty"`
+	Match   string `yaml:"match,omitempty"`
+	NoMatch string `yaml:"no-match,omitempty"`
+}
+
+// YamlRule rules for an individual label
 type YamlRule struct {
-	Head   string `yaml:"head,omitempty"`
-	Base   string `yaml:"base,omitempty"`
-	Title  string `yaml:"title,omitempty"`
-	Body   string `yaml:"body,omitempty"`
-	User   string `yaml:"user,omitempty"`
-	Number []int  `yaml:"number,omitempty"`
+	Head   RuleGroupString `yaml:"head,omitempty"`
+	Base   RuleGroupString `yaml:"base,omitempty"`
+	Title  RuleGroupString `yaml:"title,omitempty"`
+	Body   RuleGroupString `yaml:"body,omitempty"`
+	User   RuleGroupString `yaml:"user,omitempty"`
+	Number RuleGroupInt    `yaml:"number,omitempty"`
 }
 
 // YamlGithubAccess stores user and access token for Github api authentication
@@ -90,10 +114,7 @@ type YamlConfigV1 struct {
 	Owner      string           `yaml:"owner"`
 	Repo       string           `yaml:"repo"`
 	// Rules      map[string]YamlRule `yaml:"rules"`
-	Rules map[string]struct {
-		Match   YamlRule `yaml:"match,omitempty"`
-		NoMatch YamlRule `yaml:"no-match,omitempty"`
-	} `yaml:"rules"`
+	Rules map[string]YamlRule `yaml:"rules"`
 }
 
 // Validates YAML with current package version

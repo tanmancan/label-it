@@ -1,34 +1,24 @@
 package labeler
 
 import (
+	"fmt"
 	"label-it/internal/common"
 	"label-it/internal/config"
 	"label-it/internal/gitapi"
 	"regexp"
 	"sort"
+	"strconv"
 )
 
-// RuleTypeString rules can contain a match or no match string
-type RuleTypeString struct {
-	Match   string
-	NoMatch string
-}
-
-// RuleTypeIntSlice rules can contain a match or no match int slice
-type RuleTypeIntSlice struct {
-	Match   []int
-	NoMatch []int
-}
-
-// Rule rule from YAML config
+// Rule label name and rules from YAML config
 type Rule struct {
 	Label       string
-	HeadRules   RuleTypeString
-	BaseRules   RuleTypeString
-	TitleRules  RuleTypeString
-	BodyRules   RuleTypeString
-	UserRule    RuleTypeString
-	NumberRules RuleTypeIntSlice
+	HeadRules   config.RuleGroupString
+	BaseRules   config.RuleGroupString
+	TitleRules  config.RuleGroupString
+	BodyRules   config.RuleGroupString
+	UserRule    config.RuleGroupString
+	NumberRules config.RuleGroupInt
 }
 
 // LabelRules set of rules created from YAML config
@@ -36,68 +26,93 @@ type LabelRules []Rule
 
 // Reusable function for pattern match
 func matchString(pattern string, s string) bool {
-	if pattern == "" {
-		return true
+	exp, experr := regexp.Compile(pattern)
+	common.CheckErr(experr)
+
+	return exp.MatchString(s)
+}
+
+// Validates a string value using rule group string
+// Returns true if all rules validate, otherwise returns false
+func ruleGroupStringValidator(r config.RuleGroupString, s string) bool {
+	exact := r.Exact
+	noExact := r.NoExact
+	match := r.Match
+	noMatch := r.NoMatch
+
+	switch {
+	case exact != "" && exact != s,
+		noExact != "" && noExact == s,
+		match != "" && matchString(match, s) != true,
+		noMatch != "" && matchString(noMatch, s) == true:
+		return false
 	}
-	match, err := regexp.MatchString(pattern, s)
-	common.CheckErr(err)
-	return match
+
+	return true
+}
+
+// Validates a int value using rule group integer
+// Returns true if all rules validate, otherwise returns false
+func ruleGroupIntValidator(r config.RuleGroupInt, i int) bool {
+	exact := r.Exact
+	noExact := r.NoExact
+	match := r.Match
+	noMatch := r.NoMatch
+
+	// For regex pattern match, we convert int to string and
+	// do match on the string representation of the integer
+	// @TODO: maybe just store the pr number as string and skip this step
+	s := strconv.Itoa(i)
+
+	switch {
+	case exact != 0 && exact != i,
+		noExact != 0 && noExact == i,
+		match != "" && matchString(match, s) != true,
+		noMatch != "" && matchString(noMatch, s) == true:
+		return false
+	}
+
+	return true
 }
 
 // MatchHeadRules determines if provided pull request head branch matche the HeadRule
 func (r Rule) MatchHeadRules(pr gitapi.PullRequest) bool {
-	if r.HeadRules.Match == pr.Head.Ref {
-		return true
-	}
-
-	if r.HeadRules.NoMatch == pr.Head.Ref {
-		return false
-	}
-
-	return matchString(r.HeadRules.Match, pr.Head.Ref)
+	return ruleGroupStringValidator(r.HeadRules, pr.Head.Ref)
 }
 
 // MatchBaseRules determines if provided pull request base branch matche theBaseRule
 func (r Rule) MatchBaseRules(pr gitapi.PullRequest) bool {
-	if r.BaseRules == pr.Base.Ref {
-		return true
-	}
-
-	return matchString(r.BaseRules, pr.Base.Ref)
+	return ruleGroupStringValidator(r.BaseRules, pr.Base.Ref)
 }
 
 // MatchTitleRules determines if provided pull request contains text in title rules
 func (r Rule) MatchTitleRules(pr gitapi.PullRequest) bool {
-	return matchString(r.TitleRules, pr.Title)
+	return ruleGroupStringValidator(r.TitleRules, pr.Title)
 }
 
 // MatchBodyRules determines if provided pull request contains text in title rules
 func (r Rule) MatchBodyRules(pr gitapi.PullRequest) bool {
-	return matchString(r.BodyRules, pr.Body)
+	return ruleGroupStringValidator(r.BodyRules, pr.Body)
 }
 
 // MatchUserRules checks if pull request creator username matches user rule
 func (r Rule) MatchUserRules(pr gitapi.PullRequest) bool {
-	if r.UserRule == "" {
-		return true
-	}
-
-	return r.UserRule == pr.User.Login
+	return ruleGroupStringValidator(r.UserRule, pr.User.Login)
 }
 
 // MatchNumberRules determines if pull request issue number matches provider number in rule
 func (r Rule) MatchNumberRules(pr gitapi.PullRequest) bool {
-	if len(r.NumberRules) == 0 {
-		return true
-	}
+	return ruleGroupIntValidator(r.NumberRules, pr.Number)
+}
 
-	searchIdx := sort.SearchInts(r.NumberRules, pr.Number)
-
-	if searchIdx == len(r.NumberRules) {
-		return false
-	}
-
-	return r.NumberRules[searchIdx] == pr.Number
+func debugRules(r Rule, pr gitapi.PullRequest) {
+	fmt.Println("----")
+	fmt.Println(pr.Number, "Base:", pr.Base.Ref, r.MatchHeadRules(pr), r.BaseRules)
+	fmt.Println(pr.Number, "Head:", pr.Head.Ref, r.MatchBaseRules(pr), r.HeadRules)
+	fmt.Println(pr.Number, "Title", pr.Title, r.MatchTitleRules(pr), r.TitleRules)
+	fmt.Println(pr.Number, "Body", pr.Body, r.MatchBodyRules(pr), r.BodyRules)
+	fmt.Println(pr.Number, "User", pr.User.Login, r.MatchUserRules(pr), r.UserRule)
+	fmt.Println(pr.Number, "Number", pr.Number, r.MatchNumberRules(pr), r.NumberRules)
 }
 
 // MatchAllRules checks if a pull request passes all checks for a given rule
@@ -148,44 +163,14 @@ func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 	labelRules := LabelRules{}
 
 	for label, rule := range config.YamlConfig.Rules {
-		matchNumRule := rule.Match.Number
-		sort.Ints(matchNumRule)
-
-		noMatchNumRule := rule.NoMatch.Number
-		sort.Ints(noMatchNumRule)
-
-		ruleHead := RuleTypeString{
-			Match:   rule.Match.Head,
-			NoMatch: rule.NoMatch.Head,
-		}
-		ruleBase := RuleTypeString{
-			Match:   rule.Match.Base,
-			NoMatch: rule.NoMatch.Base,
-		}
-		ruleTitle := RuleTypeString{
-			Match:   rule.Match.Title,
-			NoMatch: rule.NoMatch.Title,
-		}
-		ruleBody := RuleTypeString{
-			Match:   rule.Match.Body,
-			NoMatch: rule.NoMatch.Body,
-		}
-		ruleUser := RuleTypeString{
-			Match:   rule.Match.User,
-			NoMatch: rule.NoMatch.User,
-		}
-		ruleNumber := RuleTypeIntSlice{
-			Match:   matchNumRule,
-			NoMatch: noMatchNumRule,
-		}
 		newRule := Rule{
 			label,
-			ruleHead,
-			ruleBase,
-			ruleTitle,
-			ruleBody,
-			ruleUser,
-			ruleNumber,
+			rule.Head,
+			rule.Base,
+			rule.Title,
+			rule.Body,
+			rule.User,
+			rule.Number,
 		}
 		labelRules = append(labelRules, newRule)
 	}
