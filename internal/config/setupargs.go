@@ -32,7 +32,7 @@ func SetupArgs() {
 	flag.Parse()
 
 	if showVersion == true {
-		fmt.Printf("Package version: v%[1]s\nYAML Config Version: v%[2]d\n", AppConfig.BuildVersion, AppConfig.ConfigVersion)
+		fmt.Printf("Package version: v%[1]s\nYAML Config Version: v%[2]d\n", BuildVersion, ConfigVersion)
 		os.Exit(1)
 	}
 

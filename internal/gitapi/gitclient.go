@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+
 	"github.com/tanmancan/label-it/v1/internal/common"
 	"github.com/tanmancan/label-it/v1/internal/config"
-	"net/http"
 )
 
 // Endpoints use by this package
@@ -46,7 +47,7 @@ func prettyPrintResponse(content []byte) {
 	fmt.Println(dst.String())
 }
 
-// Populate endpoint templates in AppConfig.Github.Endpoints with provided arguments
+// Populate endpoint templates from githubAPIEndpoints with provided arguments
 func buildEndpoint(endpointTemplate string, args ...interface{}) string {
 	owner := config.YamlConfig.Owner
 	repo := config.YamlConfig.Repo

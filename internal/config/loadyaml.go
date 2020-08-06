@@ -120,8 +120,8 @@ type YamlConfigV1 struct {
 
 // Validates YAML with current package version
 func validateVersion(ver int) {
-	if ver != AppConfig.ConfigVersion {
-		log.Fatal("Invalid config file version. Current tool requires version", AppConfig.ConfigVersion)
+	if ver != ConfigVersion {
+		log.Fatal("Invalid config file version. Current tool requires version", ConfigVersion)
 	}
 }
 
