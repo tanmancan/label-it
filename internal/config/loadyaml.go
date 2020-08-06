@@ -58,7 +58,7 @@ type YamlGithubAccess struct {
 // Parses access values and checks for env variables if provided
 func parseAccess(v string) (string, error) {
 	if v[0] == 36 {
-		env := v[1:len(v)]
+		env := v[1:]
 		envval := os.Getenv(env)
 
 		if envval == "" {
