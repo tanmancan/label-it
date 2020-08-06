@@ -156,7 +156,7 @@ base-rule:
 
 ## Rules Types
 
-### `base-rule` (`string`)
+### `base-rule`
 
 Rules type that compares the pull request base branch.
 
@@ -167,7 +167,7 @@ base-rule:
 
 ```
 
-### `head-rule` (`string`)
+### `head-rule`
 
 Rules type that compares the title text of the pull request.
 
@@ -176,7 +176,7 @@ head-rule:
   exact: master
 ```
 
-### `title-rule` (`string`)
+### `title-rule`
 Rules type that compares the title text of the pull request.
 
 ```yaml
@@ -185,7 +185,7 @@ title-rule:
 ```
 
 
-### `body-rule` (`string`)
+### `body-rule`
 Rules type that compares the body text of the pull request.
 
 ```yaml
@@ -193,7 +193,7 @@ body-rule:
   match: My pull request body
 ```
 
-### `user-rule` (`string`)
+### `user-rule`
 Rules type that compares the username of the account that opened the pull request.
 
 ```yaml
@@ -201,7 +201,7 @@ user-rule:
   no-exact: tanmancan
 ```
 
-### `number-rule` (`array`)
+### `number-rule`
 Rules type that compares the pull request number.
 
 ```yaml
