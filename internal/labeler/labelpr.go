@@ -14,6 +14,7 @@ func printPrLabel(prLabels []gitapi.PrLabel) {
 	for _, prLabel := range prLabels {
 		fmt.Printf("%[1]d\t%[2]s\n", prLabel.Issue, strings.Join(prLabel.Labels, ", "))
 	}
+	fmt.Print("\n")
 }
 
 // LabelPr adds labels to a given list of pull requests via the Github API
@@ -27,8 +28,13 @@ func LabelPr(prLabels []gitapi.PrLabel) {
 	}
 
 	if config.DryRun == false {
+		c := make(chan string, updateCount)
 		for _, prLabel := range prLabels {
-			gitapi.AddLabels(prLabel)
+			go gitapi.AddLabels(prLabel, c)
+		}
+
+		for i := 0; i < updateCount; i++ {
+			fmt.Println(<-c)
 		}
 	}
 }
