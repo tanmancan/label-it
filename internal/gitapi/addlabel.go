@@ -2,7 +2,7 @@ package gitapi
 
 import (
 	"encoding/json"
-	"label-it/internal/common"
+	"github.com/tanmancan/label-it/v1/internal/common"
 )
 
 // PrLabel interface describing a pull request and

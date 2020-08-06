@@ -349,3 +349,7 @@ rules:
     body-rule:
       exact: Hello World
 ```
+
+---
+
+&copy; Tanveer Karim [www.tkarimdesign.com](https://www.tkarimdesign.com)

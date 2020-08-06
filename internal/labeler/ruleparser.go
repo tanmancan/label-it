@@ -2,9 +2,9 @@ package labeler
 
 import (
 	"fmt"
-	"label-it/internal/common"
-	"label-it/internal/config"
-	"label-it/internal/gitapi"
+	"github.com/tanmancan/label-it/v1/internal/common"
+	"github.com/tanmancan/label-it/v1/internal/config"
+	"github.com/tanmancan/label-it/v1/internal/gitapi"
 	"regexp"
 	"sort"
 	"strconv"

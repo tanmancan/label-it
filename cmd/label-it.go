@@ -1,9 +1,9 @@
 package main
 
 import (
-	"label-it/internal/config"
-	"label-it/internal/gitapi"
-	"label-it/internal/labeler"
+	"github.com/tanmancan/label-it/v1/internal/config"
+	"github.com/tanmancan/label-it/v1/internal/gitapi"
+	"github.com/tanmancan/label-it/v1/internal/labeler"
 )
 
 func main() {

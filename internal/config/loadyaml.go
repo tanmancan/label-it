@@ -3,9 +3,10 @@ package config
 import (
 	"errors"
 	"io/ioutil"
-	"label-it/internal/common"
 	"log"
 	"os"
+
+	"github.com/tanmancan/label-it/v1/internal/common"
 
 	"gopkg.in/yaml.v2"
 )

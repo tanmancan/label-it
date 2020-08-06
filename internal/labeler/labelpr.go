@@ -2,9 +2,10 @@ package labeler
 
 import (
 	"fmt"
-	"label-it/internal/config"
-	"label-it/internal/gitapi"
 	"strings"
+
+	"github.com/tanmancan/label-it/v1/internal/config"
+	"github.com/tanmancan/label-it/v1/internal/gitapi"
 )
 
 func printPrLabel(prLabels []gitapi.PrLabel) {
@@ -17,9 +18,14 @@ func printPrLabel(prLabels []gitapi.PrLabel) {
 
 // LabelPr adds labels to a given list of pull requests via the Github API
 func LabelPr(prLabels []gitapi.PrLabel) {
+	updateCount := len(prLabels)
+	fmt.Printf("Found %[1]d matching pull request.\n", updateCount)
+	printPrLabel(prLabels)
+
 	if config.DryRun == true {
-		printPrLabel(prLabels)
+		fmt.Println("Perform dry run. Pull request were not updated.")
 	}
+
 	if config.DryRun == false {
 		for _, prLabel := range prLabels {
 			gitapi.AddLabels(prLabel)

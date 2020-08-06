@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"label-it/internal/common"
-	"label-it/internal/config"
+	"github.com/tanmancan/label-it/v1/internal/common"
+	"github.com/tanmancan/label-it/v1/internal/config"
 	"net/http"
 )
 
