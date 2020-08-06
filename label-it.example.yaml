@@ -12,72 +12,124 @@ owner: tanmancan
 # Repository name
 repo: label-it
 
-# Each rule is grouped by the label name
-# If an open pull request matches all provided rules
-# then this label will be applied to it
+# Provide a list of rules, that are grouped by labels
+# If all rules in a group match a pull request,
+# then the label will be added to the PR.
 rules:
-  # Label name
-  Label Name:
-    # The "to" branch. Any pull request merging to
-    # this branch will have this label added.
-    # May pass the branch name or a regular expression
-    base: base-branch-name
-    # The "from" branch. Any pull request created
-    # from this branch will have this label added.
-    # May pass the branch name or a regular expression
-    head: head-branch-name
-    # Check if provided text appears in pull request title
-    # May pass a string or a regular expression
-    title: Text in title
-    # Check if provided text appears in pull request body
-    # May pass a string or a regular expression
-    body: Text in body
-    # Provide a Github username. If pull request was opened
-    # by this user, the label will be added
-    user: tanmancan
-    # Apply labels to specific pull request by their numbers.
-    number: [0, 1, 2, 3, 4]
 
-  # Examples:
+    # Label name. If all provided rules match,
+    # then this label will be added to the pull request.
+  - label: my-label-name
 
-  # All rules must match for label to be added
-  AllRulesMatch:
-    head: staging
-    base: dev
-    title: Create
+    # Rules type that compares the pull request head branch.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    head-rule:
 
-  # A label with no rule will be added to all pull requests
-  LabelToAllPr:
-  # In this example - If a pull request's base branch
-  # is "staging", the the label "From Staging" will be added
-  From Staging:
-    head: staging
+      # Each rule types may have 4 possible checks. You can
+      # provide one or more checks for a given rule type:
+      # Exact - the rule value must be an exact match of the compare value.
+      exact: master
+      # NoExact - a rule value must NOT be an exact match of the compare value.
+      no-exact: staging
+      # Match - a regex pattern that must match a compare value.
+      match: ^(mas)
+      # NoMatch - a regex pattern that must NOT match a compare value
+      no-match: ^(stag)
 
-  # If the pull request is merging to master branch
-  # then the label "To Master" will be applied
-  To Master:
-    base: master
+    # Rules type that compares the pull request base branch.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    base-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
 
-  # This label will be applied if the head branch
-  # name starts with "pr-"
-  PR-* branch:
-    head: ^(pr-)
+    # Rules type that compares the title text of the pull request.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    title-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
 
-  # The label "PR #5" will be added to pull request #5
-  # if it is open
-  "PR #5":
-    number: [5]
+    # Rules type that compares the body text of the pull request.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    body-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
 
-  # Regular expression string - if pull request has the words
-  # text, in, or title the label "Regex Title" will be applied
-  Regex Title:
-    title: (text)|(in)|(title)
+    # Rules type that compares the username of the account that opened the pull request.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    user-rule:
+      exact: tanmancan
+      no-exact: octocat
+      match: ^(tan)
+      no-match: ^(linus)
 
-  # The label will be added if the user "tanmancan" opened the pull request
-  Tanmancan PR:
-    user: tanmancan
+    # Rules type that compares the pull request number.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    number-rule:
+      exact: 42
+      no-exact: 10
+      match: (100)|(200)|^(3)
+      no-match: ^(5)|(600)
 
-  # The label "BodyText" will be applied if the pull request contains
-  # the text "Hello World"
-  BodyText:
-    body: Hello World
+    # Examples:
+
+    # If not rules are given, label
+    # will be added to all pull requests
+  - label: test
+
+    # All rules must match for label to be added
+  - label: All Rules Much Match
+    # The pr head branch must exactly be "staging"
+    head-rule:
+      exact: staging
+    # The pr base branch must not be "dev"
+    base-rule:
+      no-exact: dev
+    # The pr title must be "Create"
+    title-rule:
+      exact: Create
+
+    # Base rule, exact - If a pull request's base branch
+    # is "master", the the label "To Master" will be added
+  - label: To Master
+    base-rule:
+      exact: master
+
+    # Head rule, no-exact - The pull request's head branch must not
+    # be "staging", in order for the rule to be applied
+  - label: From Staging
+    head-rule:
+      no-exact: staging
+
+    # Head rule, match - This label will be applied if the pull request
+    # head branch name starts with "pr-"
+  - label: PR-* branch
+    head-rule:
+      match: ^(pr-)
+
+    # Title rule, no-match - Any pull request that have the words
+    # "text", "in", or "title" in its title, will not have this label applied.
+  - label: Regex Title
+    title-rule:
+      no-match: (text)|(in)|(title)
+
+    # The label "PR #5" will be added to pull request #5
+  - label: "PR #5"
+    number-rule:
+      exact: 5
+
+    # The label will be added if the user is not "tanmancan".
+  - label: Tanmancan PR
+    user-rule:
+      no-exact: tanmancan
+
+    # The label "BodyText" will be applied if the pull request contains
+    # only the text "Hello World"
+  - label: BodyText
+    body-rule:
+      exact: Hello World

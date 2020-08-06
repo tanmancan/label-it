@@ -26,3 +26,6 @@ label-it
 
 # Docs
 !label-it.example.yaml
+
+# Builds
+.build

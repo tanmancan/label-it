@@ -13,39 +13,39 @@ import (
 // YamlConfig loaded yaml configuration
 var YamlConfig YamlConfigV1
 
-// RuleGroupString groups of rule types for string values.
+// RuleTypeString groups of rule types for string values.
 // Exact - the rule value must be an exact match of the compare value.
 // NoExact - a rule value must NOT be an exact match of the compare value.
 // Match - a regex pattern that must match a compare value.
 // NoMatch - a regex pattern that must NOT match a compare value
-type RuleGroupString struct {
+type RuleTypeString struct {
 	Exact   string `yaml:"exact,omitempty"`
 	NoExact string `yaml:"no-exact,omitempty"`
 	Match   string `yaml:"match,omitempty"`
 	NoMatch string `yaml:"no-match,omitempty"`
 }
 
-// RuleGroupInt groups of rule types for integer values
+// RuleTypeInt groups of rule types for integer values
 // Exact - the rule value must be an exact match of the compare value.
 // NoExact - a rule value must NOT be an exact match of the compare value.
 // Match - a regex pattern that must match a compare value.
 // NoMatch - a regex pattern that must NOT match a compare value
-type RuleGroupInt struct {
+type RuleTypeInt struct {
 	Exact   int    `yaml:"exact,omitempty"`
 	NoExact int    `yaml:"no-exact,omitempty"`
 	Match   string `yaml:"match,omitempty"`
 	NoMatch string `yaml:"no-match,omitempty"`
 }
 
-// YamlRule rules for an individual label
-type YamlRule struct {
-	Label  string          `yaml:"label"`
-	Head   RuleGroupString `yaml:"head,omitempty"`
-	Base   RuleGroupString `yaml:"base,omitempty"`
-	Title  RuleGroupString `yaml:"title,omitempty"`
-	Body   RuleGroupString `yaml:"body,omitempty"`
-	User   RuleGroupString `yaml:"user,omitempty"`
-	Number RuleGroupInt    `yaml:"number,omitempty"`
+// YamlRuleGroup rules for an individual label
+type YamlRuleGroup struct {
+	Label  string         `yaml:"label"`
+	Head   RuleTypeString `yaml:"head-rule,omitempty"`
+	Base   RuleTypeString `yaml:"base-rule,omitempty"`
+	Title  RuleTypeString `yaml:"title-rule,omitempty"`
+	Body   RuleTypeString `yaml:"body-rule,omitempty"`
+	User   RuleTypeString `yaml:"user-rule,omitempty"`
+	Number RuleTypeInt    `yaml:"number-rule,omitempty"`
 }
 
 // YamlGithubAccess stores user and access token for Github api authentication
@@ -114,8 +114,7 @@ type YamlConfigV1 struct {
 	Access     YamlGithubAccess `yaml:"access"`
 	Owner      string           `yaml:"owner"`
 	Repo       string           `yaml:"repo"`
-	// Rules      map[string]YamlRule `yaml:"rules"`
-	Rules []YamlRule `yaml:"rules"`
+	Rules      []YamlRuleGroup  `yaml:"rules"`
 }
 
 // Validates YAML with current package version

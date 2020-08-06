@@ -20,9 +20,9 @@ func LabelPr(prLabels []gitapi.PrLabel) {
 	if config.DryRun == true {
 		printPrLabel(prLabels)
 	}
-	// if config.DryRun == false {
-	// 	for _, prLabel := range prLabels {
-	// 		gitapi.AddLabels(prLabel)
-	// 	}
-	// }
+	if config.DryRun == false {
+		for _, prLabel := range prLabels {
+			gitapi.AddLabels(prLabel)
+		}
+	}
 }

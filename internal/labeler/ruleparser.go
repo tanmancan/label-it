@@ -13,12 +13,12 @@ import (
 // Rule label name and rules from YAML config
 type Rule struct {
 	Label       string
-	HeadRules   config.RuleGroupString
-	BaseRules   config.RuleGroupString
-	TitleRules  config.RuleGroupString
-	BodyRules   config.RuleGroupString
-	UserRule    config.RuleGroupString
-	NumberRules config.RuleGroupInt
+	HeadRules   config.RuleTypeString
+	BaseRules   config.RuleTypeString
+	TitleRules  config.RuleTypeString
+	BodyRules   config.RuleTypeString
+	UserRule    config.RuleTypeString
+	NumberRules config.RuleTypeInt
 }
 
 // LabelRules set of rules created from YAML config
@@ -32,9 +32,9 @@ func matchString(pattern string, s string) bool {
 	return exp.MatchString(s)
 }
 
-// Validates a string value using rule group string
+// RuleTypeStringValidator validates a string value using rule group string
 // Returns true if all rules validate, otherwise returns false
-func ruleGroupStringValidator(r config.RuleGroupString, s string) bool {
+func RuleTypeStringValidator(r config.RuleTypeString, s string) bool {
 	exact := r.Exact
 	noExact := r.NoExact
 	match := r.Match
@@ -51,16 +51,15 @@ func ruleGroupStringValidator(r config.RuleGroupString, s string) bool {
 	return true
 }
 
-// Validates a int value using rule group integer
+// RuleTypeIntValidator validates a int value using rule group integer
 // Returns true if all rules validate, otherwise returns false
-func ruleGroupIntValidator(r config.RuleGroupInt, i int) bool {
+func RuleTypeIntValidator(r config.RuleTypeInt, i int) bool {
 	exact := r.Exact
 	noExact := r.NoExact
 	match := r.Match
 	noMatch := r.NoMatch
 
-	// For regex pattern match, we convert int to string and
-	// do match on the string representation of the integer
+	// For regex pattern match, we coerce the int value into a string
 	// @TODO: maybe just store the pr number as string and skip this step
 	s := strconv.Itoa(i)
 
@@ -77,32 +76,32 @@ func ruleGroupIntValidator(r config.RuleGroupInt, i int) bool {
 
 // MatchHeadRules determines if provided pull request head branch matche the HeadRule
 func (r Rule) MatchHeadRules(pr gitapi.PullRequest) bool {
-	return ruleGroupStringValidator(r.HeadRules, pr.Head.Ref)
+	return RuleTypeStringValidator(r.HeadRules, pr.Head.Ref)
 }
 
 // MatchBaseRules determines if provided pull request base branch matche theBaseRule
 func (r Rule) MatchBaseRules(pr gitapi.PullRequest) bool {
-	return ruleGroupStringValidator(r.BaseRules, pr.Base.Ref)
+	return RuleTypeStringValidator(r.BaseRules, pr.Base.Ref)
 }
 
 // MatchTitleRules determines if provided pull request contains text in title rules
 func (r Rule) MatchTitleRules(pr gitapi.PullRequest) bool {
-	return ruleGroupStringValidator(r.TitleRules, pr.Title)
+	return RuleTypeStringValidator(r.TitleRules, pr.Title)
 }
 
 // MatchBodyRules determines if provided pull request contains text in title rules
 func (r Rule) MatchBodyRules(pr gitapi.PullRequest) bool {
-	return ruleGroupStringValidator(r.BodyRules, pr.Body)
+	return RuleTypeStringValidator(r.BodyRules, pr.Body)
 }
 
 // MatchUserRules checks if pull request creator username matches user rule
 func (r Rule) MatchUserRules(pr gitapi.PullRequest) bool {
-	return ruleGroupStringValidator(r.UserRule, pr.User.Login)
+	return RuleTypeStringValidator(r.UserRule, pr.User.Login)
 }
 
 // MatchNumberRules determines if pull request issue number matches provider number in rule
 func (r Rule) MatchNumberRules(pr gitapi.PullRequest) bool {
-	return ruleGroupIntValidator(r.NumberRules, pr.Number)
+	return RuleTypeIntValidator(r.NumberRules, pr.Number)
 }
 
 func debugRules(r Rule, pr gitapi.PullRequest) {
