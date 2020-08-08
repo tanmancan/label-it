@@ -24,7 +24,7 @@ func LabelPr(prLabels []gitapi.PrLabel) {
 	printPrLabel(prLabels)
 
 	if config.DryRun == true {
-		fmt.Println("Perform dry run. Pull request were not updated.")
+		fmt.Println("Perform dry run. Pull requests were not updated.")
 	}
 
 	if config.DryRun == false {

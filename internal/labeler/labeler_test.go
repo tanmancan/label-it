@@ -1,9 +1,12 @@
 package labeler
 
 import (
+	"encoding/json"
+	"log"
 	"testing"
 
 	"github.com/tanmancan/label-it/v1/internal/config"
+	"github.com/tanmancan/label-it/v1/internal/gitapi"
 )
 
 func TestMatchString(t *testing.T) {
@@ -95,4 +98,26 @@ func TestRuleTypeStringValidator(t *testing.T) {
 			t.Error("RuleTypeString: Failed no match check")
 		}
 	})
+}
+
+func TestPrHasLabel(t *testing.T) {
+	prJSON := `{
+		"labels": [
+			{"name": "testing-label"}
+		]
+	}`
+
+	var mockPr gitapi.PullRequest
+
+	err := json.Unmarshal([]byte(prJSON), &mockPr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	testLabel := "testing-label"
+	hasLabel := prHasLabel(mockPr, testLabel)
+
+	if hasLabel != true {
+		t.Errorf("Unable to find label %s in pull request", testLabel)
+	}
 }
