@@ -5,6 +5,8 @@
 *.so
 *.dylib
 label-it
+bin/*
+dist/*
 
 # Test binary, built with `go test -c`
 *.test

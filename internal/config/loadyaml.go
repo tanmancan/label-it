@@ -111,7 +111,7 @@ func (a *YamlGithubAccess) UnmarshalYAML(unmarshal func(interface{}) error) erro
 
 // YamlConfigV1 interface used to unmarshal YAML configuration
 type YamlConfigV1 struct {
-	APIVersion int              `yaml:"apiVersion"`
+	APIVersion string           `yaml:"apiVersion"`
 	Access     YamlGithubAccess `yaml:"access"`
 	Owner      string           `yaml:"owner"`
 	Repo       string           `yaml:"repo"`
@@ -119,9 +119,9 @@ type YamlConfigV1 struct {
 }
 
 // Validates YAML with current package version
-func validateVersion(ver int) {
-	if ver != ConfigVersion {
-		log.Fatal("Invalid config file version. Current tool requires version", ConfigVersion)
+func validateVersion(ver string) {
+	if ver != APIVersion {
+		log.Fatal("Invalid config file version. Current tool requires version", APIVersion)
 	}
 }
 
@@ -133,5 +133,5 @@ func LoadYaml() {
 	parseerr := yaml.UnmarshalStrict(dat, &YamlConfig)
 	common.CheckErr(parseerr)
 
-	validateVersion(YamlConfig.APIVersion)
+	validateVersion(APIVersion)
 }
