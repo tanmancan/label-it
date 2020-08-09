@@ -14,7 +14,7 @@ GITCOMMIT := $(shell git rev-parse HEAD)
 GITSHORT := $(shell git rev-parse --short HEAD)
 
 # Versioning is done via git tags using semantic versioning
-VERSION := $(shell git describe --tags --abbrev=0 --exact-match 2>/dev/null)
+VERSION := $(shell git describe --tags --abbrev=0)
 ifndef VERSION
 	VERSION := dev
 endif
