@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+func assertEqual(expectedValue interface{}, giventValue interface{}, t *testing.T) {
+	if giventValue != expectedValue {
+		t.Errorf("Expected value: %[1]s Found value: %[2]s", expectedValue, giventValue)
+	}
+}
+
 func TestYamlConfigLoad(t *testing.T) {
 	YamlPath = "./config_test.yaml"
 	LoadYaml()
@@ -12,28 +18,20 @@ func TestYamlConfigLoad(t *testing.T) {
 		YamlConfig = YamlConfigV1{}
 	})
 
-	t.Run("ApiConfigExists", func(t *testing.T) {
-		ver := "v1"
-		if YamlConfig.APIVersion != ver {
-			t.Errorf("YamlConfig.APIVersion should be %s", ver)
-		}
-		user := "tanmancan"
-		if YamlConfig.Access.User != user {
-			t.Errorf("YamlConfig.Access.User should be %s", user)
-		}
-		token := "testingtokenabcd"
-		if YamlConfig.Access.Token != token {
-			t.Errorf("YamlConfig.Access.User should be %s", token)
-		}
-		owner := "tanmancan"
-		if YamlConfig.Owner != owner {
-			t.Errorf("YamlConfig.Owner should be %s", owner)
-		}
-		repo := "github-api-sandbox"
-		if YamlConfig.Repo != "github-api-sandbox" {
-			t.Errorf("YamlConfig.Repo should be %s", repo)
-		}
-	})
+	testData := []struct {
+		config        string
+		expectedValue string
+	}{
+		{YamlConfig.APIVersion, "v1"},
+		{YamlConfig.Access.User, "tanmancan"},
+		{YamlConfig.Access.Token, "testingtokenabcd"},
+		{YamlConfig.Owner, "tanmancan"},
+		{YamlConfig.Repo, "github-api-sandbox"},
+	}
+
+	for _, data := range testData {
+		assertEqual(data.expectedValue, data.config, t)
+	}
 
 	t.Run("RuleConfigsExists", func(t *testing.T) {
 		if len(YamlConfig.Rules) == 0 {
@@ -47,43 +45,55 @@ func TestYamlConfigLoad(t *testing.T) {
 			t.Errorf("YamlConfig.Rules[0].Label should be %s", label)
 		}
 
-		headRule := YamlConfig.Rules[0].Head
+		ruleStringTestData := []struct {
+			rule RuleTypeString
+		}{
+			{rule.Head},
+			{rule.Base},
+			{rule.Title},
+			{rule.Body},
+			{rule.User},
+		}
+
 		exact := "master"
 		noExact := "staging"
 		match := "^(mas)"
 		noMatch := "^(stag)"
 
-		if headRule.Exact != exact {
-			t.Errorf("YamlConfig.Rules[0].Head.Exact must be %s", exact)
+		for _, stringRule := range ruleStringTestData {
+			t.Run("ExactCheck", func(t *testing.T) {
+				assertEqual(exact, stringRule.rule.Exact, t)
+			})
+			t.Run("NoExactCheck", func(t *testing.T) {
+				assertEqual(noExact, stringRule.rule.NoExact, t)
+			})
+			t.Run("MatchCheck", func(t *testing.T) {
+				assertEqual(match, stringRule.rule.Match, t)
+			})
+			t.Run("NoMatchCheck", func(t *testing.T) {
+				assertEqual(noMatch, stringRule.rule.NoMatch, t)
+			})
 		}
-		if headRule.NoExact != noExact {
-			t.Errorf("YamlConfig.Rules[0].Head.NoExact must be %s", noExact)
-		}
-		if headRule.Match != match {
-			t.Errorf("YamlConfig.Rules[0].Head.Match must be %s", match)
-		}
-		if headRule.NoMatch != noMatch {
-			t.Errorf("YamlConfig.Rules[0].Head.NoMatch must be %s", noMatch)
-		}
+
 	})
 }
 
 func TestYamlConfigInitial(t *testing.T) {
-	if YamlConfig.APIVersion != "" {
-		t.Error("YamlConfig.APIVersion should be empty")
+	testData := []struct {
+		config        string
+		expectedValue string
+	}{
+		{YamlConfig.APIVersion, ""},
+		{YamlConfig.Access.User, ""},
+		{YamlConfig.Access.Token, ""},
+		{YamlConfig.Owner, ""},
+		{YamlConfig.Repo, ""},
 	}
-	if YamlConfig.Access.User != "" {
-		t.Error("YamlConfig.Access.User should be empty")
+
+	for _, data := range testData {
+		assertEqual(data.expectedValue, data.config, t)
 	}
-	if YamlConfig.Access.Token != "" {
-		t.Error("YamlConfig.Access.User should be empty")
-	}
-	if YamlConfig.Owner != "" {
-		t.Error("YamlConfig.Owner should be empty")
-	}
-	if YamlConfig.Repo != "" {
-		t.Error("YamlConfig.Repo should be empty")
-	}
+
 	if len(YamlConfig.Rules) != 0 {
 		t.Error("YamlConfig.Rules should be empty")
 	}
