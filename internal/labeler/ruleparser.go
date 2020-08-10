@@ -2,12 +2,13 @@ package labeler
 
 import (
 	"fmt"
-	"github.com/tanmancan/label-it/v1/internal/common"
-	"github.com/tanmancan/label-it/v1/internal/config"
-	"github.com/tanmancan/label-it/v1/internal/gitapi"
 	"regexp"
 	"sort"
 	"strconv"
+
+	"github.com/tanmancan/label-it/v1/internal/common"
+	"github.com/tanmancan/label-it/v1/internal/config"
+	"github.com/tanmancan/label-it/v1/internal/gitapi"
 )
 
 // Rule label name and rules from YAML config
@@ -17,7 +18,7 @@ type Rule struct {
 	BaseRules   config.RuleTypeString
 	TitleRules  config.RuleTypeString
 	BodyRules   config.RuleTypeString
-	UserRule    config.RuleTypeString
+	UserRules   config.RuleTypeString
 	NumberRules config.RuleTypeInt
 }
 
@@ -96,7 +97,7 @@ func (r Rule) MatchBodyRules(pr gitapi.PullRequest) bool {
 
 // MatchUserRules checks if pull request creator username matches user rule
 func (r Rule) MatchUserRules(pr gitapi.PullRequest) bool {
-	return RuleTypeStringValidator(r.UserRule, pr.User.Login)
+	return RuleTypeStringValidator(r.UserRules, pr.User.Login)
 }
 
 // MatchNumberRules determines if pull request issue number matches provider number in rule
@@ -110,7 +111,7 @@ func debugRules(r Rule, pr gitapi.PullRequest) {
 	fmt.Println(pr.Number, "Head:", pr.Head.Ref, r.MatchBaseRules(pr), r.HeadRules)
 	fmt.Println(pr.Number, "Title", pr.Title, r.MatchTitleRules(pr), r.TitleRules)
 	fmt.Println(pr.Number, "Body", pr.Body, r.MatchBodyRules(pr), r.BodyRules)
-	fmt.Println(pr.Number, "User", pr.User.Login, r.MatchUserRules(pr), r.UserRule)
+	fmt.Println(pr.Number, "User", pr.User.Login, r.MatchUserRules(pr), r.UserRules)
 	fmt.Println(pr.Number, "Number", pr.Number, r.MatchNumberRules(pr), r.NumberRules)
 }
 

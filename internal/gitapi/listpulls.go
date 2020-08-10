@@ -4,29 +4,31 @@ import (
 	"encoding/json"
 )
 
+// PrBranch properties describing pull request head and base branch
+type PrBranch struct {
+	Label string `json:"label"`
+	Ref   string `json:"ref"`
+	SHA   string `json:"sha"`
+}
+
+// PrUser properties describing user who opened the pull request
+type PrUser struct {
+	Login string `json:"login"`
+}
+
 // PullRequest individual pull request properties
 type PullRequest struct {
-	URL    string `json:"url"`
-	Number int    `json:"number"`
-	State  string `json:"state"`
-	Title  string `json:"title"`
-	Body   string `json:"body"`
-	Head   struct {
-		Label string `json:"label"`
-		Ref   string `json:"ref"`
-		SHA   string `json:"sha"`
-	} `json:"head"`
-	Base struct {
-		Label string `json:"label"`
-		Ref   string `json:"ref"`
-		SHA   string `json:"sha"`
-	} `json:"base"`
+	URL    string   `json:"url"`
+	Number int      `json:"number"`
+	State  string   `json:"state"`
+	Title  string   `json:"title"`
+	Body   string   `json:"body"`
+	Head   PrBranch `json:"head"`
+	Base   PrBranch `json:"base"`
 	Labels []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	User struct {
-		Login string `json:"login"`
-	} `json:"user"`
+	User PrUser `json:"user"`
 }
 
 // ListPullsResponse interface used to unmarshal JSON response

@@ -1,32 +1,34 @@
-package config
+package config_test
 
 import (
 	"os"
 	"testing"
+
+	"github.com/tanmancan/label-it/v1/internal/config"
 )
 
-func assertEqual(expectedValue interface{}, giventValue interface{}, t *testing.T) {
-	if giventValue != expectedValue {
-		t.Errorf("Expected value: %[1]s Found value: %[2]s", expectedValue, giventValue)
+func assertEqual(expectedValue interface{}, givenValue interface{}, t *testing.T) {
+	if givenValue != expectedValue {
+		t.Errorf("Expected value: %[1]s Found value: %[2]s", expectedValue, givenValue)
 	}
 }
 
 func TestYamlConfigLoad(t *testing.T) {
-	YamlPath = "./config_test.yaml"
-	LoadYaml()
+	config.YamlPath = "./config_test.yaml"
+	config.LoadYaml()
 	t.Cleanup(func() {
-		YamlConfig = YamlConfigV1{}
+		config.YamlConfig = config.YamlConfigV1{}
 	})
 
 	testData := []struct {
 		config        string
 		expectedValue string
 	}{
-		{YamlConfig.APIVersion, "v1"},
-		{YamlConfig.Access.User, "tanmancan"},
-		{YamlConfig.Access.Token, "testingtokenabcd"},
-		{YamlConfig.Owner, "tanmancan"},
-		{YamlConfig.Repo, "github-api-sandbox"},
+		{config.YamlConfig.APIVersion, "v1"},
+		{config.YamlConfig.Access.User, "tanmancan"},
+		{config.YamlConfig.Access.Token, "testingTokenAbcd"},
+		{config.YamlConfig.Owner, "tanmancan"},
+		{config.YamlConfig.Repo, "github-api-sandbox"},
 	}
 
 	for _, data := range testData {
@@ -34,19 +36,19 @@ func TestYamlConfigLoad(t *testing.T) {
 	}
 
 	t.Run("RuleConfigsExists", func(t *testing.T) {
-		if len(YamlConfig.Rules) == 0 {
-			t.Errorf("YamlConfig.Rules should not be empty")
+		if len(config.YamlConfig.Rules) == 0 {
+			t.Errorf("config.YamlConfig.Rules should not be empty")
 		}
 
-		rule := YamlConfig.Rules[0]
+		rule := config.YamlConfig.Rules[0]
 		label := "my-label-name"
 
 		if rule.Label != label {
-			t.Errorf("YamlConfig.Rules[0].Label should be %s", label)
+			t.Errorf("config.YamlConfig.Rules[0].Label should be %s", label)
 		}
 
 		ruleStringTestData := []struct {
-			rule RuleTypeString
+			rule config.RuleTypeString
 		}{
 			{rule.Head},
 			{rule.Base},
@@ -83,46 +85,42 @@ func TestYamlConfigInitial(t *testing.T) {
 		config        string
 		expectedValue string
 	}{
-		{YamlConfig.APIVersion, ""},
-		{YamlConfig.Access.User, ""},
-		{YamlConfig.Access.Token, ""},
-		{YamlConfig.Owner, ""},
-		{YamlConfig.Repo, ""},
+		{config.YamlConfig.APIVersion, ""},
+		{config.YamlConfig.Access.User, ""},
+		{config.YamlConfig.Access.Token, ""},
+		{config.YamlConfig.Owner, ""},
+		{config.YamlConfig.Repo, ""},
 	}
 
 	for _, data := range testData {
 		assertEqual(data.expectedValue, data.config, t)
 	}
 
-	if len(YamlConfig.Rules) != 0 {
-		t.Error("YamlConfig.Rules should be empty")
+	if len(config.YamlConfig.Rules) != 0 {
+		t.Error("config.YamlConfig.Rules should be empty")
 	}
 }
-func TestValidateVersion(t *testing.T) {
-	APIVersion = "v2"
-	validateVersion("v2")
-}
 
-func TestYamlGithubAccessUnmarshall(t *testing.T) {
+func TestYamlGithubAccessUnmarshal(t *testing.T) {
 	osToken := "TESTGITTOKEN"
 	osUser := "TESTGITUSER"
 	os.Setenv("GIT_TEST_TOKEN", osToken)
 	os.Setenv("GIT_TEST_USER", osUser)
 
-	YamlPath = "./config_test_env.yaml"
-	LoadYaml()
+	config.YamlPath = "./config_test_env.yaml"
+	config.LoadYaml()
 
 	t.Cleanup(func() {
-		YamlConfig = YamlConfigV1{}
+		config.YamlConfig = config.YamlConfigV1{}
 		os.Unsetenv("GIT_TEST_TOKEN")
 		os.Unsetenv("GIT_TEST_USER")
 	})
 
-	if YamlConfig.Access.Token != osToken {
-		t.Errorf("YamlConfig.Access.Token should be %s", osToken)
+	if config.YamlConfig.Access.Token != osToken {
+		t.Errorf("config.YamlConfig.Access.Token should be %s", osToken)
 	}
 
-	if YamlConfig.Access.User != osUser {
-		t.Errorf("YamlConfig.Access.User should be %s", osUser)
+	if config.YamlConfig.Access.User != osUser {
+		t.Errorf("config.YamlConfig.Access.User should be %s", osUser)
 	}
 }
