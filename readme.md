@@ -1,10 +1,36 @@
 # Label It
 
-A command line tool written in Go, for adding labels to Github pull requests using a declarative YAML configuration
+A command line tool for adding labels to Github pull requests using a declarative YAML configuration. Written in Go.
+
+## Download
+
+Available for Mac, Linux or Windows. Latest release can be found [here](https://github.com/tanmancan/label-it/releases/latest).
+
+Download and extract the `tar.gz` file.
+
+```bash
+ tar -xzf [FILENAME].tar.gz
+```
+
+Verify the tool is working:
+
+```bash
+./label-it --version
+
+Version: vX.X.X
+API Version: vX
+SHA: XXXXXX
+```
+
+Scroll down to learn more about configuring rules and usage.
+
+### Manual build
+
+There is a [Makefile](Makefile) included with this project, which you can use to compile and build the project yourself. This includes tests and targets for Mac, linux and windows 64bit platforms. Binaries will be output in the `bin` directory.
 
 ## Usage
 
-Configure Rules via YAML. See below for all [configuration options](#options)
+Configure Rules via an YAML file. See below for all [configuration options](#configuration-options)
 
 `label-it.yaml`:
 ```yaml
@@ -15,14 +41,15 @@ access:
 owner: tanmancan
 repo: label-it
 rules:
-  MyLabel:
-    base-rule: dev
+  - label: My Label Name
+    head-rule:
+      exact: head-branch-name
 ...
 ```
 
-Run using rules from the YAML configuration
+Run `label-it` and pass the configuration file as an option.
 ```bash
-label-it -c label-it.yaml
+./label-it -c label-it.yaml
 ```
 
 ## Usage Options
@@ -45,7 +72,7 @@ Example: ./label-it -c label-it.yaml
 ## Configuration Options
 
 ### `apiVersion` (`int`) *required*
-Version of YAML schema. Breaking changes to the schema will be versioned.
+Version of rule configuration schema. Breaking changes to the schema will be versioned.
 
 ```yaml
 apiVersion: 1
@@ -60,7 +87,7 @@ access:
   token: asdf1234
 ```
 
-While you can add a username and token directly to the YAML file, it is recommended that you pass in an env variable instead. Env variables are determined by prefixing the name with `$`:
+It is recommended that you pass in the authentication information via an env variable. Values that begin with a `$` will be treated as an env variable:
 
 ```yaml
 access:

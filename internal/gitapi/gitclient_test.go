@@ -3,6 +3,7 @@ package gitapi
 import (
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/tanmancan/label-it/v1/internal/config"
@@ -116,4 +117,21 @@ func Test_buildBasicAuth(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_buildReqQuery(t *testing.T) {
+	request, _ := http.NewRequest("GET", "http://example.com", nil)
+	query := map[string]string{
+		"testq":    "testval",
+		"anotherq": "secondval",
+	}
+	want := "http://example.com?anotherq=secondval&testq=testval"
+	t.Run("query params added to request", func(t *testing.T) {
+		buildReqQuery(request, query)
+		reqURL := request.URL.String()
+		if reqURL != want {
+			t.Errorf("request url = %v, want %v", reqURL, want)
+		}
+		fmt.Println(reqURL)
+	})
 }
