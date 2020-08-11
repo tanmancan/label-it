@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -16,11 +17,12 @@ var ShowHelp bool
 var DryRun bool
 
 // SetupArgs sets up flags and help text
-func SetupArgs() {
+func SetupArgs() error {
 	flag.Usage = func() {
 		fmt.Printf("Usage: %[1]s [--version][--help][-c <path>]\n", os.Args[0])
 		fmt.Printf("Example: %[1]s -c label-it.yaml\n\n", os.Args[0])
 		flag.PrintDefaults()
+		os.Exit(0)
 	}
 
 	var showVersion bool
@@ -33,11 +35,13 @@ func SetupArgs() {
 
 	if showVersion == true {
 		fmt.Printf("Version: %[1]s\nAPI Version: %[2]s\nSHA: %[3]s\n", BuildVersion, APIVersion, GitSHA)
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	if YamlPath == "" {
-		fmt.Printf("Config file not provided. See '%[1]s --help'\n", os.Args[0])
-		os.Exit(1)
+		errMessage := fmt.Sprintf("Config file not provided. See '%[1]s --help'\n", os.Args[0])
+		return errors.New(errMessage)
 	}
+
+	return nil
 }

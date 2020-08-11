@@ -7,12 +7,9 @@ import (
 )
 
 func TestSetupArgs(t *testing.T) {
-	config.SetupArgs()
-	tests := []struct {
-		name string
-	}{}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-		})
+	err := config.SetupArgs()
+
+	if err == nil {
+		t.Errorf("SetupArgs should return an error if no config file was provided")
 	}
 }
