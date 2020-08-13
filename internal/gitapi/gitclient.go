@@ -14,8 +14,9 @@ import (
 
 // Endpoints use by this package
 type githubAPIEndpoints struct {
-	AddLabels string
-	ListPulls string
+	AddLabels   string
+	ListPulls   string
+	ListPrFiles string
 }
 
 // Configuration types for Github API
@@ -34,8 +35,9 @@ var githubConfig = githubAPIConfig{
 		"Content-Type": "application/json",
 	},
 	Endpoints: githubAPIEndpoints{
-		AddLabels: "/repos/%[1]s/%[2]s/issues/%[3]d/labels",
-		ListPulls: "/repos/%[1]s/%[2]s/pulls",
+		AddLabels:   "/repos/%[1]s/%[2]s/issues/%[3]d/labels",
+		ListPulls:   "/repos/%[1]s/%[2]s/pulls",
+		ListPrFiles: "/repos/%[1]s/%[2]s/pulls/%[3]d/files",
 	},
 }
 
