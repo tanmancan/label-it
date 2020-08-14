@@ -47,6 +47,7 @@ type YamlRuleGroup struct {
 	Body   RuleTypeString `yaml:"body-rule,omitempty"`
 	User   RuleTypeString `yaml:"user-rule,omitempty"`
 	Number RuleTypeInt    `yaml:"number-rule,omitempty"`
+	File   RuleTypeString `yaml:"file-rule,omitempty"`
 }
 
 // YamlGithubAccess stores user and access token for Github api authentication

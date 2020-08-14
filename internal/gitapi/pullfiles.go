@@ -2,7 +2,7 @@ package gitapi
 
 import (
 	"encoding/json"
-	"fmt"
+	"sort"
 	"strconv"
 	"sync"
 )
@@ -54,7 +54,7 @@ func listPrFiles(number int, page int, wg *sync.WaitGroup, c chan ListPrFilesRes
 
 // GetAllFiles calls the get pr files endpoint recursively for
 // each page that return a list of files
-func GetAllFiles(number int) ListPrFilesResponse {
+func GetAllFiles(number int) []string {
 
 	c := make(chan ListPrFilesResponse)
 	var wg sync.WaitGroup
@@ -71,9 +71,10 @@ func GetAllFiles(number int) ListPrFilesResponse {
 		allFiles = append(allFiles, res...)
 	}
 
-	for _, prFile := range allFiles {
-		fmt.Println(prFile.Filename)
+	var allFileNames []string
+	for _, files := range allFiles {
+		allFileNames = append(allFileNames, files.Filename)
 	}
-
-	return allFiles
+	sort.Strings(allFileNames)
+	return allFileNames
 }
