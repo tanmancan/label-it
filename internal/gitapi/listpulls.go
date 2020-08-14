@@ -35,6 +35,7 @@ type PullRequest struct {
 type ListPullsResponse []PullRequest
 
 // ListPulls get a list of open pull requests
+// https://docs.github.com/en/rest/reference/pulls#list-pull-requests
 func ListPulls() ListPullsResponse {
 	endpoint := buildEndpoint(githubConfig.Endpoints.ListPulls)
 
