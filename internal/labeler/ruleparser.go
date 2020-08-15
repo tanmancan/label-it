@@ -1,7 +1,6 @@
 package labeler
 
 import (
-	"fmt"
 	"regexp"
 	"sort"
 	"strconv"
@@ -108,9 +107,6 @@ func (r Rule) MatchNumberRules(pr gitapi.PullRequest) bool {
 
 // MatchFileRules determines if changed files in pull request matches provided file rule
 func (r Rule) MatchFileRules(pr gitapi.PullRequest) bool {
-	// if pr.Number != 1121 {
-	// 	return true
-	// }
 	rule := r.FileRules
 	if rule == struct {
 		Exact   string `yaml:"exact,omitempty"`
@@ -121,29 +117,46 @@ func (r Rule) MatchFileRules(pr gitapi.PullRequest) bool {
 		return true
 	}
 
-	files := gitapi.GetAllFiles(pr.Number)
-	var exact bool
-	var noExact bool
-	var match bool
-	var noMatch bool
+	files := pr.Files
 	valid := true
 	invalid := false
+	exact := valid
+	noExact := valid
+	match := valid
+	noMatch := valid
 
-	if rule.Exact == "" {
-		exact = valid
-	}
-	if rule.NoExact == "" {
+	if rule.NoExact != "" {
+		// No exact start as valid
+		// But if a exact file is found, it will be marked invalid
 		noExact = valid
-	}
-	if rule.Match == "" {
-		match = valid
-	}
-	if rule.NoExact == "" {
-		noMatch = valid
+		noExactIdx := sort.SearchStrings(files, rule.NoExact)
+
+		// Exact match found
+		if (noExactIdx != len(files)) && (files[noExactIdx] == rule.NoExact) {
+			return false
+		}
 	}
 
-	fmt.Println("EXACT--:", pr.Number, exact, rule.Exact)
+	if rule.NoMatch != "" {
+		// No match start as valid.
+		// If a match is found using the no match check,
+		// then no match will be marked as invalid
+		noMatch = valid
+		for _, file := range files {
+			if matchString(rule.NoMatch, file) == true {
+				noMatch = invalid
+				break
+			}
+		}
+		if noMatch == invalid {
+			return false
+		}
+	}
+
 	if rule.Exact != "" {
+		// If exact rule is provided, we set default as invalid.
+		// It will only pass if a match has been found
+		exact = invalid
 		exactIdx := sort.SearchStrings(files, rule.Exact)
 
 		// No exact match found
@@ -152,83 +165,25 @@ func (r Rule) MatchFileRules(pr gitapi.PullRequest) bool {
 		}
 
 		// Exact match found
-		if exactIdx == len(files) && files[exactIdx] == rule.Exact {
+		if (exactIdx != len(files)) && (files[exactIdx] == rule.Exact) {
 			exact = valid
 		}
 	}
 
-	if rule.NoExact != "" {
-		noExactIdx := sort.SearchStrings(files, rule.NoExact)
-
-		// No exact match found
-		if noExactIdx == len(files) {
-			noExact = valid
-		}
-
-		// Exact match found
-		if noExactIdx == len(files) && files[noExactIdx] == rule.NoExact {
-			noExact = invalid
-		}
-	}
-
 	if rule.Match != "" {
+		// If match check is provided,
+		// we start it as invalid.
+		// Match will only be flagged valid if a match is found.
+		match = invalid
 		for _, file := range files {
 			if matchString(rule.Match, file) == true {
 				match = valid
 				break
 			}
 		}
-		match = invalid
-	}
-
-	if rule.NoMatch != "" {
-		for _, file := range files {
-			if matchString(rule.NoMatch, file) == true {
-				noMatch = invalid
-				break
-			}
-		}
-		noMatch = valid
 	}
 
 	return exact && noExact && match && noMatch
-	// 	for _, file := range gitapi.GetAllFiles(pr.Number) {
-	// 		s := file.Filename
-	// 		exact := r.FileRules.Exact
-	// 		noExact := r.FileRules.NoExact
-	// 		match := r.FileRules.Match
-	// 		noMatch := r.FileRules.NoMatch
-
-	// 		fmt.Println(s)
-	// 		fmt.Println(noExact)
-	// 		switch {
-	// 		case exact != "" && exact == s:
-	// 			goto Valid
-	// 		case noExact != "" && noExact == s:
-	// 			goto Invalid
-	// 		case match != "" && matchString(match, s) == true:
-	// 			goto Valid
-	// 		case noMatch != "" && matchString(noMatch, s) == true:
-	// 			goto Invalid
-	// 		}
-	// 	}
-
-	// 	return false
-	// Invalid:
-	// 	return false
-	// Valid:
-	// 	return true
-	// 	return false
-}
-
-func debugRules(r Rule, pr gitapi.PullRequest) {
-	fmt.Println("----")
-	fmt.Println(pr.Number, "Base:", pr.Base.Ref, r.MatchHeadRules(pr), r.BaseRules)
-	fmt.Println(pr.Number, "Head:", pr.Head.Ref, r.MatchBaseRules(pr), r.HeadRules)
-	fmt.Println(pr.Number, "Title", pr.Title, r.MatchTitleRules(pr), r.TitleRules)
-	fmt.Println(pr.Number, "Body", pr.Body, r.MatchBodyRules(pr), r.BodyRules)
-	fmt.Println(pr.Number, "User", pr.User.Login, r.MatchUserRules(pr), r.UserRules)
-	fmt.Println(pr.Number, "Number", pr.Number, r.MatchNumberRules(pr), r.NumberRules)
 }
 
 // MatchAllRules checks if a pull request passes all checks for a given rule
@@ -279,7 +234,7 @@ func prHasLabel(pr gitapi.PullRequest, label string) bool {
 // returns a list of matched pull request numbers and labels to apply to them
 func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 	labelRules := LabelRules{}
-
+	hasFileRule := false
 	for _, rule := range config.YamlConfig.Rules {
 		newRule := Rule{
 			rule.Label,
@@ -292,14 +247,24 @@ func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 			rule.File,
 		}
 		labelRules = append(labelRules, newRule)
+		if rule.File != struct {
+			Exact   string `yaml:"exact,omitempty"`
+			NoExact string `yaml:"no-exact,omitempty"`
+			Match   string `yaml:"match,omitempty"`
+			NoMatch string `yaml:"no-match,omitempty"`
+		}{} {
+			hasFileRule = true
+		}
 	}
 
 	matchedLabelPr := []gitapi.PrLabel{}
 
 	for _, pr := range prList {
-		if pr.Number != 1121 {
-			continue
+		// Pre fetch files if file rule is present
+		if hasFileRule == true {
+			pr.Files = gitapi.GetAllFiles(pr.Number)
 		}
+
 		newLabels := []string{}
 		for _, r := range labelRules {
 			hasLabel := prHasLabel(pr, r.Label)
