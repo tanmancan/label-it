@@ -42,7 +42,7 @@ func listPrFiles(number int, page int, wg *sync.WaitGroup, c chan ListPrFilesRes
 	// Hardcoding 500 max files (100 per page)
 	// Possibly make this configarable, but need to find out
 	// what the constraints are on the list pr files endpoint
-	maxFiles := 500
+	maxFiles := 1000
 	maxPages := maxFiles / perPage
 	if len(prFiles) == 100 && page <= maxPages-1 {
 		page++
