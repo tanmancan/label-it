@@ -181,11 +181,11 @@ base-rule:
   no-match: ^(stage-)
 ```
 
-## Rules Types
+## Rule Types
 
 ### `base-rule`
 
-Rules type that compares the pull request base branch.
+Rule type that compares the pull request base branch.
 
 ```yaml
 base-rule:
@@ -196,7 +196,7 @@ base-rule:
 
 ### `head-rule`
 
-Rules type that compares the title text of the pull request.
+Rule type that compares the title text of the pull request.
 
 ```yaml
 head-rule:
@@ -204,7 +204,7 @@ head-rule:
 ```
 
 ### `title-rule`
-Rules type that compares the title text of the pull request.
+Rule type that compares the title text of the pull request.
 
 ```yaml
 title-rule:
@@ -213,7 +213,7 @@ title-rule:
 
 
 ### `body-rule`
-Rules type that compares the body text of the pull request.
+Rule type that compares the body text of the pull request.
 
 ```yaml
 body-rule:
@@ -221,7 +221,7 @@ body-rule:
 ```
 
 ### `user-rule`
-Rules type that compares the username of the account that opened the pull request.
+Rule type that compares the username of the account that opened the pull request.
 
 ```yaml
 user-rule:
@@ -229,13 +229,30 @@ user-rule:
 ```
 
 ### `number-rule`
-Rules type that compares the pull request number.
+Rule type that compares the pull request number.
 
 ```yaml
 number-rule:
   match: ^(10)
   no-exact: 1044
 ```
+
+### `file-rule`
+Rule type that compares file path of all changed files in a pull request. Currently only supports a maximum of 1000 files. If your pull request is larger, it is recommended manually adding labels for now. In the future a larger file count may be supported.
+
+```yaml
+file-rule:
+  exact: www/index.html
+  no-exact: files/common/robots.text
+  match: (.jpg)$
+  no-match: ^(readme.)
+```
+
+Since this rule compares a list of file paths, each check will need to validate against the full list:
+- `exact`: If an exact match is found in the list of file paths,  exact check will be considered valid
+- `no-exact`: If a no exact match is found in the list of file paths, no-exact check will be considered invalid.
+- `match`: If an regex pattern matches a path in the list of file paths, then the match check will be considered valid.
+- `no-match`: If an regex pattern matches a path in the list of file paths, then the no-match check will be considered invalid.
 
 ### Example Configuration
 
@@ -263,7 +280,7 @@ rules:
     # then this label will be added to the pull request.
   - label: my-label-name
 
-    # Rules type that compares the pull request head branch.
+    # Rule type that compares the pull request head branch.
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     head-rule:
 
@@ -278,7 +295,7 @@ rules:
       # NoMatch - a regex pattern that must NOT match a compare value
       no-match: ^(stag)
 
-    # Rules type that compares the pull request base branch.
+    # Rule type that compares the pull request base branch.
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     base-rule:
       exact: master
@@ -286,7 +303,7 @@ rules:
       match: ^(mas)
       no-match: ^(stag)
 
-    # Rules type that compares the title text of the pull request.
+    # Rule type that compares the title text of the pull request.
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     title-rule:
       exact: master
@@ -294,7 +311,7 @@ rules:
       match: ^(mas)
       no-match: ^(stag)
 
-    # Rules type that compares the body text of the pull request.
+    # Rule type that compares the body text of the pull request.
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     body-rule:
       exact: master
@@ -302,7 +319,7 @@ rules:
       match: ^(mas)
       no-match: ^(stag)
 
-    # Rules type that compares the username of the account that opened the pull request.
+    # Rule type that compares the username of the account that opened the pull request.
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     user-rule:
       exact: tanmancan
@@ -310,13 +327,31 @@ rules:
       match: ^(tan)
       no-match: ^(linus)
 
-    # Rules type that compares the pull request number.
+    # Rule type that compares the pull request number.
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     number-rule:
       exact: 42
       no-exact: 10
       match: (100)|(200)|^(3)
       no-match: ^(5)|(600)
+
+    # Rule type that compares paths of all changed files in a pr
+    # Currently only supports testing the first 1000 files in a pr.
+    # If your pull request is larger, it is recommended manually adding labels for now. In the future a larger file count may be supported.
+    # Each rule type may have four checks: exact, no-exact, match, no-match.
+    file-rule:
+      # If an exact match is found in the list of file paths,
+      # exact check will be considered valid
+      exact: www/index.html
+      # If a no exact match is found in the list of file paths,
+      # no-exact check will be considered invalid
+      no-exact: files/common/robots.text
+      # If an regex pattern matches a path in the list of file paths,
+      # then the match check will be considered valid
+      match: (.jpg)$
+      # If an regex pattern matches a path in the list of file paths,
+      # then the no-match check will be considered invalid
+      no-match: ^(readme.)
 
     # Examples:
 
@@ -375,6 +410,12 @@ rules:
   - label: BodyText
     body-rule:
       exact: Hello World
+
+    # The label Robots will be applied if the file
+    # www/robots.txt has been modified din the pull request
+  - label: Robots
+    file-rule:
+      exact: www/robots.txt
 ```
 
 ---
