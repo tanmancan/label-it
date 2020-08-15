@@ -28,7 +28,8 @@ type PullRequest struct {
 	Labels []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	User PrUser `json:"user"`
+	User  PrUser `json:"user"`
+	Files []string
 }
 
 // ListPullsResponse interface used to unmarshal JSON response
