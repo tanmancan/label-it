@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"sync"
 
 	"github.com/tanmancan/label-it/v1/internal/common"
 	"github.com/tanmancan/label-it/v1/internal/config"
@@ -230,11 +231,38 @@ func prHasLabel(pr gitapi.PullRequest, label string) bool {
 	return existingLabels[searchIdx] == label
 }
 
+// Checks a pull request for all provided rules
+func checkPr(hasFileRule bool, pr gitapi.PullRequest, labelRules LabelRules, c chan gitapi.PrLabel, wg *sync.WaitGroup) {
+	// Pre fetch files if file rule is present
+	if hasFileRule == true {
+		pr.Files = gitapi.GetAllFiles(pr.Number)
+	}
+
+	newLabels := []string{}
+	for _, r := range labelRules {
+		hasLabel := prHasLabel(pr, r.Label)
+
+		if hasLabel == false {
+			matchAll := r.MatchAllRules(pr)
+			if matchAll == true {
+				newLabels = append(newLabels, r.Label)
+			}
+		}
+	}
+
+	if len(newLabels) != 0 {
+		c <- gitapi.PrLabel{Issue: pr.Number, Labels: newLabels}
+	}
+
+	wg.Done()
+}
+
 // RuleParser parses rules and checks if they match provided pull requests
 // returns a list of matched pull request numbers and labels to apply to them
 func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 	labelRules := LabelRules{}
 	hasFileRule := false
+
 	for _, rule := range config.YamlConfig.Rules {
 		newRule := Rule{
 			rule.Label,
@@ -258,29 +286,21 @@ func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 	}
 
 	matchedLabelPr := []gitapi.PrLabel{}
+	c := make(chan gitapi.PrLabel)
+	var wg sync.WaitGroup
 
 	for _, pr := range prList {
-		// Pre fetch files if file rule is present
-		if hasFileRule == true {
-			pr.Files = gitapi.GetAllFiles(pr.Number)
-		}
+		wg.Add(1)
+		go checkPr(hasFileRule, pr, labelRules, c, &wg)
+	}
 
-		newLabels := []string{}
-		for _, r := range labelRules {
-			hasLabel := prHasLabel(pr, r.Label)
+	go func() {
+		wg.Wait()
+		close(c)
+	}()
 
-			if hasLabel == false {
-				matchAll := r.MatchAllRules(pr)
-				if matchAll == true {
-					newLabels = append(newLabels, r.Label)
-				}
-			}
-		}
-
-		if len(newLabels) != 0 {
-			newPrLabel := gitapi.PrLabel{Issue: pr.Number, Labels: newLabels}
-			matchedLabelPr = append(matchedLabelPr, newPrLabel)
-		}
+	for newPrLabel := range c {
+		matchedLabelPr = append(matchedLabelPr, newPrLabel)
 	}
 
 	return matchedLabelPr
