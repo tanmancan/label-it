@@ -2,6 +2,7 @@ package labeler
 
 import (
 	"testing"
+	"time"
 
 	"github.com/tanmancan/label-it/v1/internal/config"
 	"github.com/tanmancan/label-it/v1/internal/gitapi"
@@ -252,6 +253,12 @@ func TestRule_MatchAllRules(t *testing.T) {
 					Match:   "^(57)",
 					NoMatch: "(91)$",
 				},
+				UpdatedRules: config.RuleTypeDate{
+					DaysBefore: 9,
+				},
+				CreatedRules: config.RuleTypeDate{
+					DaysBefore: 9,
+				},
 			},
 			args{
 				pr: gitapi.PullRequest{
@@ -267,21 +274,26 @@ func TestRule_MatchAllRules(t *testing.T) {
 					User: gitapi.PrUser{
 						Login: "tanmancan",
 					},
+					UpdatedAt: time.Now().AddDate(0, 0, -10).Format(time.RFC3339),
+					CreatedAt: time.Now().AddDate(0, 0, -10).Format(time.RFC3339),
 				},
 			},
 			true,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := Rule{
-				Label:       tt.fields.Label,
-				HeadRules:   tt.fields.HeadRules,
-				BaseRules:   tt.fields.BaseRules,
-				TitleRules:  tt.fields.TitleRules,
-				BodyRules:   tt.fields.BodyRules,
-				UserRules:   tt.fields.UserRules,
-				NumberRules: tt.fields.NumberRules,
+				Label:        tt.fields.Label,
+				HeadRules:    tt.fields.HeadRules,
+				BaseRules:    tt.fields.BaseRules,
+				TitleRules:   tt.fields.TitleRules,
+				BodyRules:    tt.fields.BodyRules,
+				UserRules:    tt.fields.UserRules,
+				NumberRules:  tt.fields.NumberRules,
+				UpdatedRules: tt.fields.UpdatedRules,
+				CreatedRules: tt.fields.CreatedRules,
 			}
 			if got := r.MatchAllRules(tt.args.pr); got != tt.want {
 				t.Errorf("Rule.MatchAllRules() = %v, want %v", got, tt.want)
