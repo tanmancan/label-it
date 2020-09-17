@@ -1,10 +1,12 @@
 package labeler
 
 import (
+	"fmt"
 	"regexp"
 	"sort"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/tanmancan/label-it/v1/internal/common"
 	"github.com/tanmancan/label-it/v1/internal/config"
@@ -13,14 +15,16 @@ import (
 
 // Rule label name and rules from YAML config
 type Rule struct {
-	Label       string
-	HeadRules   config.RuleTypeString
-	BaseRules   config.RuleTypeString
-	TitleRules  config.RuleTypeString
-	BodyRules   config.RuleTypeString
-	UserRules   config.RuleTypeString
-	NumberRules config.RuleTypeInt
-	FileRules   config.RuleTypeString
+	Label        string
+	HeadRules    config.RuleTypeString
+	BaseRules    config.RuleTypeString
+	TitleRules   config.RuleTypeString
+	BodyRules    config.RuleTypeString
+	UserRules    config.RuleTypeString
+	NumberRules  config.RuleTypeInt
+	FileRules    config.RuleTypeString
+	CreatedRules config.RuleTypeDate
+	UpdatedRules config.RuleTypeDate
 }
 
 // LabelRules set of rules created from YAML config
@@ -187,9 +191,46 @@ func (r Rule) MatchFileRules(pr gitapi.PullRequest) bool {
 	return exact && noExact && match && noMatch
 }
 
+// MatchDateRules determines if pull request date value is
+// given number of days in the past
+func (r Rule) MatchDateRules(pr gitapi.PullRequest) bool {
+	createdRule := r.CreatedRules
+	updatedRule := r.UpdatedRules
+
+	if updatedRule != struct {
+		DaysBefore int `yaml:"days-before,omitempty"`
+	}{} {
+		timeUpdatedRule := time.Now().AddDate(0, 0, -1*updatedRule.DaysBefore)
+		prUpdatedDate, updateParseErr := time.Parse(time.RFC3339, pr.UpdatedAt)
+		common.CheckErr(updateParseErr)
+
+		fmt.Println(pr.Number, timeUpdatedRule, prUpdatedDate, createdRule.DaysBefore)
+
+		if !prUpdatedDate.Before(timeUpdatedRule) {
+			return false
+		}
+	}
+
+	if createdRule != struct {
+		DaysBefore int `yaml:"days-before,omitempty"`
+	}{} {
+		timeCreatedRule := time.Now().AddDate(0, 0, -1*createdRule.DaysBefore)
+		prCreatedDate, createParseErr := time.Parse(time.RFC3339, pr.CreatedAt)
+		common.CheckErr(createParseErr)
+
+		if !prCreatedDate.Before(timeCreatedRule) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // MatchAllRules checks if a pull request passes all checks for a given rule
 func (r Rule) MatchAllRules(pr gitapi.PullRequest) bool {
 	switch {
+	case r.MatchDateRules(pr) != true:
+		return false
 	case r.MatchHeadRules(pr) != true:
 		return false
 	case r.MatchBaseRules(pr) != true:
@@ -273,6 +314,8 @@ func RuleParser(prList gitapi.ListPullsResponse) []gitapi.PrLabel {
 			rule.User,
 			rule.Number,
 			rule.File,
+			rule.Created,
+			rule.Updated,
 		}
 		labelRules = append(labelRules, newRule)
 		if rule.File != struct {

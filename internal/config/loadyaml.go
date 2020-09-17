@@ -38,16 +38,24 @@ type RuleTypeInt struct {
 	NoMatch string `yaml:"no-match,omitempty"`
 }
 
+// RuleTypeDate groups of rule types for date values
+// DaysBefore - the compare value must be this number of days before today
+type RuleTypeDate struct {
+	DaysBefore int `yaml:"days-before,omitempty"`
+}
+
 // YamlRuleGroup rules for an individual label
 type YamlRuleGroup struct {
-	Label  string         `yaml:"label"`
-	Head   RuleTypeString `yaml:"head-rule,omitempty"`
-	Base   RuleTypeString `yaml:"base-rule,omitempty"`
-	Title  RuleTypeString `yaml:"title-rule,omitempty"`
-	Body   RuleTypeString `yaml:"body-rule,omitempty"`
-	User   RuleTypeString `yaml:"user-rule,omitempty"`
-	Number RuleTypeInt    `yaml:"number-rule,omitempty"`
-	File   RuleTypeString `yaml:"file-rule,omitempty"`
+	Label   string         `yaml:"label"`
+	Head    RuleTypeString `yaml:"head-rule,omitempty"`
+	Base    RuleTypeString `yaml:"base-rule,omitempty"`
+	Title   RuleTypeString `yaml:"title-rule,omitempty"`
+	Body    RuleTypeString `yaml:"body-rule,omitempty"`
+	User    RuleTypeString `yaml:"user-rule,omitempty"`
+	Number  RuleTypeInt    `yaml:"number-rule,omitempty"`
+	File    RuleTypeString `yaml:"file-rule,omitempty"`
+	Created RuleTypeDate   `yaml:"created-rule,omitempty"`
+	Updated RuleTypeDate   `yaml:"updated-rule,omitempty"`
 }
 
 // YamlGithubAccess stores user and access token for Github api authentication
