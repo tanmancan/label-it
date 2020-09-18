@@ -39,7 +39,7 @@ type RuleTypeInt struct {
 }
 
 // RuleTypeDate groups of rule types for date values
-// DaysBefore - the compare value must be this number of days before today
+// DaysBefore - the pull request date value must be greater then this number of days in the past.
 type RuleTypeDate struct {
 	DaysBefore int `yaml:"days-before,omitempty"`
 }

@@ -94,6 +94,20 @@ rules:
       # then the no-match check will be considered invalid
       no-match: ^(readme.)
 
+    # Rule type that compares the pull request updated date.
+    # Only allows the `days-before` check.
+    updated-rule:
+      # The pull request date value must be this number of days before today.
+      # In the example below, if the pull request was updated more than 14 days ago,
+      # the check will pass.
+      days-before: 14
+
+    created-rule:
+      # The pull request date value must be this number of days before today.
+      # In the example below, if the pull request was updated more than 30 days ago,
+      # the check will pass.
+      days-before: 30
+
     # Examples:
 
     # If not rules are given, label

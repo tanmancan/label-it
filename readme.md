@@ -141,17 +141,13 @@ rules:
 ```
 
 ## Rule Checks
-Each rule types may have 4 possible checks. You can provide one or more checks for a given rule type.
 
-```yaml
-base-rule:
-  exact: text
-  no-exact: text
-  match: text
-  no-match: text
-```
+Rule checks allows you to specify different types of checks agaisnt a pull request. For example you can check to see if a pull request has a specific label, or if the pull request's title matches a regular expression pattern. If all provided rule checks pass the validation, then a given label will be added to the pull request.
 
 ### `exact` (`string`)
+
+**Applies to all rules except `created-rule` and `updated-rule`**
+
 The rule value must be an exact match of the compare value. In the example below, a pull request merging to the `master` branch will pass this check.
 
 ```yaml
@@ -160,6 +156,9 @@ base-rule:
 ```
 
 ### `no-exact` (`string`)
+
+**Applies to all rules except `created-rule` and `updated-rule`**
+
 The rule value must NOT be an exact match of the compare value. In the example below, any pull request merging to the `master` branch will NOT pass this check. This check uses the go `regexp` library which uses the RE2 syntax. Learn more [here](https://github.com/google/re2/wiki/Syntax).
 
 ```yaml
@@ -168,6 +167,9 @@ base-rule:
 ```
 
 ### `match` (`string`)
+
+**Applies to all rules except `created-rule` and `updated-rule`**
+
 A regex pattern that must match a compare value. In the example below, any pull request that is merging to a branch name staring with `stage-` will pass this check. This check uses the go `regexp` library which uses the RE2 syntax. Learn more [here](https://github.com/google/re2/wiki/Syntax).
 ```yaml
 base-rule:
@@ -175,10 +177,24 @@ base-rule:
 ```
 
 ### `no-match` (`string`)
+
+**Applies to all rules except `created-rule` and `updated-rule`**
+
  a regex pattern that must NOT match a compare value. In the example below, any pull request that is merging to a branch name staring with `stage-` will NOT pass this check.
 ```yaml
 base-rule:
   no-match: ^(stage-)
+```
+
+### `days-before` (`integer`)
+
+**Applies only to `created-rule` and `updated-rule`**
+
+The pull request date value must be greater then this number of days in the past. In the example below, if the pull request was updated more than 30 days ago, the check will pass.
+
+```yaml
+updated-rule:
+  days-before: 30
 ```
 
 ## Rule Types
@@ -253,6 +269,22 @@ Since this rule compares a list of file paths, each check will need to validate 
 - `no-exact`: If a no exact match is found in the list of file paths, no-exact check will be considered invalid.
 - `match`: If an regex pattern matches a path in the list of file paths, then the match check will be considered valid.
 - `no-match`: If an regex pattern matches a path in the list of file paths, then the no-match check will be considered invalid.
+
+### `created-rule`
+Rule type that compares the pull request created date. Only allows the `days-before` check.
+
+```yaml
+create-rule:
+  days-before: 14
+```
+
+### `updated-rule`
+Rule type that compares the pull request updated date. Only allows the `days-before` check.
+
+```yaml
+create-rule:
+  days-before: 14
+```
 
 ### Example Configuration
 
@@ -352,6 +384,20 @@ rules:
       # If an regex pattern matches a path in the list of file paths,
       # then the no-match check will be considered invalid
       no-match: ^(readme.)
+
+    # Rule type that compares the pull request updated date.
+    # Only allows the `days-before` check.
+    updated-rule:
+      # The pull request date value must be this number of days before today.
+      # In the example below, if the pull request was updated more than 14 days ago,
+      # the check will pass.
+      days-before: 14
+
+    created-rule:
+      # The pull request date value must be this number of days before today.
+      # In the example below, if the pull request was updated more than 30 days ago,
+      # the check will pass.
+      days-before: 30
 
     # Examples:
 
