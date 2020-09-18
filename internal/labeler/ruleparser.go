@@ -1,7 +1,6 @@
 package labeler
 
 import (
-	"fmt"
 	"regexp"
 	"sort"
 	"strconv"
@@ -203,8 +202,6 @@ func (r Rule) MatchDateRules(pr gitapi.PullRequest) bool {
 		timeUpdatedRule := time.Now().AddDate(0, 0, -1*updatedRule.DaysBefore)
 		prUpdatedDate, updateParseErr := time.Parse(time.RFC3339, pr.UpdatedAt)
 		common.CheckErr(updateParseErr)
-
-		fmt.Println(pr.Number, timeUpdatedRule, prUpdatedDate, createdRule.DaysBefore)
 
 		if !prUpdatedDate.Before(timeUpdatedRule) {
 			return false
