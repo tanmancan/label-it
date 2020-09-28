@@ -47,7 +47,7 @@ rules:
 ...
 ```
 
-Run `label-it` and pass the configuration file as an option.
+Run `label-it` and pass the configuration file via the `-c` option.
 ```bash
 ./label-it -c label-it.yaml
 ```
@@ -67,6 +67,35 @@ Example: ./label-it -c label-it.yaml
         Outputs list of pull request and matched labels. Does not call the API
   -version
         Show version information
+  -y    Auto confirms user prompt
+```
+
+### `-c` Configuration File (Required)
+Provide the path to the configuration yaml file.
+
+```
+label-it -c path/to/label-it.yaml
+```
+
+### `-dry` Dry Run
+Perform a dry run. Parses and checks all rules, but does not apply any labels. Will show a list of all applicable labels.
+
+```
+label-it -c /path/to/label-it.yaml --dry
+```
+
+### `-version` Version Info
+Shows current version information.
+
+```
+label-it -version
+```
+
+### `-y` Auto Confirm User Prompt
+Automatically confirms prompt asking if you want to apply labels to pull requests.
+
+```
+label-it -c /path/to/label-it.yaml -y
 ```
 
 ## Configuration Options
@@ -84,7 +113,7 @@ Github username and personal access token. This will be used to authenticate wit
 ```yaml
 access:
   user: tanmancan
-  token: asdf1234
+  token: abdc1234
 ```
 
 It is recommended that you pass in the authentication information via an env variable. Values that begin with a `$` will be treated as an env variable:
@@ -142,7 +171,7 @@ rules:
 
 ## Rule Checks
 
-Rule checks allows you to specify different types of checks agaisnt a pull request. For example you can check to see if a pull request has a specific label, or if the pull request's title matches a regular expression pattern. If all provided rule checks pass the validation, then a given label will be added to the pull request.
+Rule checks allows you to specify different types of checks against a pull request. For example you can check to see if a pull request has a specific label, or if the pull request's title matches a regular expression pattern. If all provided rule checks pass the validation, then a given label will be added to the pull request.
 
 ### `exact` (`string`)
 
@@ -355,7 +384,7 @@ rules:
     # Each rule type may have four checks: exact, no-exact, match, no-match.
     user-rule:
       exact: tanmancan
-      no-exact: octocat
+      no-exact: octopus
       match: ^(tan)
       no-match: ^(linus)
 
