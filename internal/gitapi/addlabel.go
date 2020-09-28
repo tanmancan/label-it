@@ -29,7 +29,7 @@ func AddLabels(prLabel PrLabel, c chan string) {
 	gitClient(request)
 
 	log := fmt.Sprintf(
-		"Added labels \"%[1]s\" to PR #%[2]d",
+		"Added label(s) \"%[1]s\" to PR #%[2]d",
 		strings.Join(prLabel.Labels, ", "),
 		prLabel.Issue,
 	)
