@@ -16,6 +16,9 @@ var ShowHelp bool
 // DryRun outputs labels to be added to pr based on rules without making an API call
 var DryRun bool
 
+// AutoConfirm value of flag to used to auto confirm any prompt
+var AutoConfirm bool
+
 // SetupArgs sets up flags and help text
 func SetupArgs() error {
 	flag.Usage = func() {
@@ -31,6 +34,7 @@ func SetupArgs() error {
 	flag.BoolVar(&showVersion, "version", false, "Show version information")
 	flag.StringVar(&YamlPath, "c", "", "Path to the yaml file")
 	flag.BoolVar(&DryRun, "dry", false, "Outputs list of pull request and matched labels. Does not call the API")
+	flag.BoolVar(&AutoConfirm, "y", false, "Auto confirms user prompt")
 	flag.Parse()
 
 	if showVersion == true {
