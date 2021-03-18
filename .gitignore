@@ -23,6 +23,10 @@ vendor/
 # Dev configs
 *.yaml
 
+# Test config
+!internal/config/config_test.yaml
+!internal/config/config_test_env.yaml
+
 # Misc
 *docs.md
 
