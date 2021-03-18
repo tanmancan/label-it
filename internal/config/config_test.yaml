@@ -1,0 +1,45 @@
+apiVersion: v1
+access:
+  user: tanmancan
+  token: testingTokenAbcd
+owner: tanmancan
+repo: github-api-sandbox
+
+rules:
+
+  - label: my-label-name
+    head-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
+
+    base-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
+
+    title-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
+
+    body-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
+
+    user-rule:
+      exact: master
+      no-exact: staging
+      match: ^(mas)
+      no-match: ^(stag)
+
+    number-rule:
+      exact: 42
+      no-exact: 10
+      match: (100)|(200)|^(3)
+      no-match: ^(5)|(600)
