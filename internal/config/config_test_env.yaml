@@ -1,7 +1,7 @@
 apiVersion: v1
 access:
   user: $GIT_TEST_USER
-  # token: $GIT_TEST_TOKEN
+  token: $GIT_TEST_TOKEN
 owner: tanmancan
 repo: github-api-sandbox
 
