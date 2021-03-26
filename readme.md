@@ -1,5 +1,7 @@
 # Label It
 
+[![Go](https://github.com/tanmancan/label-it/actions/workflows/go.yml/badge.svg)](https://github.com/tanmancan/label-it/actions/workflows/go.yml)
+
 A command line tool for adding labels to Github pull requests using a declarative YAML configuration. Written in Go.
 
 ## Download
